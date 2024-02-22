@@ -16,9 +16,11 @@ int main()
   }*/
 
   while (1) {
-	  alt_16 val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_IN_BASE);
-	  alt_printf("%x\n", val);
-	  usleep(1000);
+	  alt_16 val_x = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
+	  alt_16 val_y = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Y_BASE);
+	  alt_16 val_z = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Z_BASE);
+	  alt_printf("%x %x %x\n", val_x, val_y, val_z);
+	  usleep(2000);
   }
 
   return 0;

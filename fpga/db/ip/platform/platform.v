@@ -4,9 +4,11 @@
 
 `timescale 1 ps / 1 ps
 module platform (
-		input  wire        clk_clk,          //       clk.clk
-		input  wire [15:0] filter_in_export, // filter_in.export
-		input  wire        reset_reset_n     //     reset.reset_n
+		input  wire        clk_clk,         //      clk.clk
+		input  wire [15:0] filter_x_export, // filter_x.export
+		input  wire [15:0] filter_y_export, // filter_y.export
+		input  wire [15:0] filter_z_export, // filter_z.export
+		input  wire        reset_reset_n    //    reset.reset_n
 	);
 
 	wire  [31:0] cpu_data_master_readdata;                                  // mm_interconnect_0:cpu_data_master_readdata -> cpu:d_readdata
@@ -43,11 +45,15 @@ module platform (
 	wire         mm_interconnect_0_memory_s1_write;                         // mm_interconnect_0:memory_s1_write -> memory:write
 	wire  [31:0] mm_interconnect_0_memory_s1_writedata;                     // mm_interconnect_0:memory_s1_writedata -> memory:writedata
 	wire         mm_interconnect_0_memory_s1_clken;                         // mm_interconnect_0:memory_s1_clken -> memory:clken
-	wire  [31:0] mm_interconnect_0_filter_in_s1_readdata;                   // filter_in:readdata -> mm_interconnect_0:filter_in_s1_readdata
-	wire   [1:0] mm_interconnect_0_filter_in_s1_address;                    // mm_interconnect_0:filter_in_s1_address -> filter_in:address
+	wire  [31:0] mm_interconnect_0_filter_x_s1_readdata;                    // filter_x:readdata -> mm_interconnect_0:filter_x_s1_readdata
+	wire   [1:0] mm_interconnect_0_filter_x_s1_address;                     // mm_interconnect_0:filter_x_s1_address -> filter_x:address
+	wire  [31:0] mm_interconnect_0_filter_y_s1_readdata;                    // filter_y:readdata -> mm_interconnect_0:filter_y_s1_readdata
+	wire   [1:0] mm_interconnect_0_filter_y_s1_address;                     // mm_interconnect_0:filter_y_s1_address -> filter_y:address
+	wire  [31:0] mm_interconnect_0_filter_z_s1_readdata;                    // filter_z:readdata -> mm_interconnect_0:filter_z_s1_readdata
+	wire   [1:0] mm_interconnect_0_filter_z_s1_address;                     // mm_interconnect_0:filter_z_s1_address -> filter_z:address
 	wire         irq_mapper_receiver0_irq;                                  // jtag_uart:av_irq -> irq_mapper:receiver0_irq
 	wire  [31:0] cpu_irq_irq;                                               // irq_mapper:sender_irq -> cpu:irq
-	wire         rst_controller_reset_out_reset;                            // rst_controller:reset_out -> [cpu:reset_n, filter_in:reset_n, irq_mapper:reset, jtag_uart:rst_n, memory:reset, mm_interconnect_0:cpu_reset_reset_bridge_in_reset_reset, rst_translator:in_reset]
+	wire         rst_controller_reset_out_reset;                            // rst_controller:reset_out -> [cpu:reset_n, filter_x:reset_n, filter_y:reset_n, filter_z:reset_n, irq_mapper:reset, jtag_uart:rst_n, memory:reset, mm_interconnect_0:cpu_reset_reset_bridge_in_reset_reset, rst_translator:in_reset]
 	wire         rst_controller_reset_out_reset_req;                        // rst_controller:reset_req -> [cpu:reset_req, memory:reset_req, rst_translator:reset_req_in]
 
 	platform_cpu cpu (
@@ -79,12 +85,28 @@ module platform (
 		.dummy_ci_port                       ()                                                   // custom_instruction_master.readra
 	);
 
-	platform_filter_in filter_in (
-		.clk      (clk_clk),                                 //                 clk.clk
-		.reset_n  (~rst_controller_reset_out_reset),         //               reset.reset_n
-		.address  (mm_interconnect_0_filter_in_s1_address),  //                  s1.address
-		.readdata (mm_interconnect_0_filter_in_s1_readdata), //                    .readdata
-		.in_port  (filter_in_export)                         // external_connection.export
+	platform_filter_x filter_x (
+		.clk      (clk_clk),                                //                 clk.clk
+		.reset_n  (~rst_controller_reset_out_reset),        //               reset.reset_n
+		.address  (mm_interconnect_0_filter_x_s1_address),  //                  s1.address
+		.readdata (mm_interconnect_0_filter_x_s1_readdata), //                    .readdata
+		.in_port  (filter_x_export)                         // external_connection.export
+	);
+
+	platform_filter_x filter_y (
+		.clk      (clk_clk),                                //                 clk.clk
+		.reset_n  (~rst_controller_reset_out_reset),        //               reset.reset_n
+		.address  (mm_interconnect_0_filter_y_s1_address),  //                  s1.address
+		.readdata (mm_interconnect_0_filter_y_s1_readdata), //                    .readdata
+		.in_port  (filter_y_export)                         // external_connection.export
+	);
+
+	platform_filter_x filter_z (
+		.clk      (clk_clk),                                //                 clk.clk
+		.reset_n  (~rst_controller_reset_out_reset),        //               reset.reset_n
+		.address  (mm_interconnect_0_filter_z_s1_address),  //                  s1.address
+		.readdata (mm_interconnect_0_filter_z_s1_readdata), //                    .readdata
+		.in_port  (filter_z_export)                         // external_connection.export
 	);
 
 	platform_jtag_uart jtag_uart (
@@ -137,8 +159,12 @@ module platform (
 		.cpu_debug_mem_slave_byteenable          (mm_interconnect_0_cpu_debug_mem_slave_byteenable),          //                                .byteenable
 		.cpu_debug_mem_slave_waitrequest         (mm_interconnect_0_cpu_debug_mem_slave_waitrequest),         //                                .waitrequest
 		.cpu_debug_mem_slave_debugaccess         (mm_interconnect_0_cpu_debug_mem_slave_debugaccess),         //                                .debugaccess
-		.filter_in_s1_address                    (mm_interconnect_0_filter_in_s1_address),                    //                    filter_in_s1.address
-		.filter_in_s1_readdata                   (mm_interconnect_0_filter_in_s1_readdata),                   //                                .readdata
+		.filter_x_s1_address                     (mm_interconnect_0_filter_x_s1_address),                     //                     filter_x_s1.address
+		.filter_x_s1_readdata                    (mm_interconnect_0_filter_x_s1_readdata),                    //                                .readdata
+		.filter_y_s1_address                     (mm_interconnect_0_filter_y_s1_address),                     //                     filter_y_s1.address
+		.filter_y_s1_readdata                    (mm_interconnect_0_filter_y_s1_readdata),                    //                                .readdata
+		.filter_z_s1_address                     (mm_interconnect_0_filter_z_s1_address),                     //                     filter_z_s1.address
+		.filter_z_s1_readdata                    (mm_interconnect_0_filter_z_s1_readdata),                    //                                .readdata
 		.jtag_uart_avalon_jtag_slave_address     (mm_interconnect_0_jtag_uart_avalon_jtag_slave_address),     //     jtag_uart_avalon_jtag_slave.address
 		.jtag_uart_avalon_jtag_slave_write       (mm_interconnect_0_jtag_uart_avalon_jtag_slave_write),       //                                .write
 		.jtag_uart_avalon_jtag_slave_read        (mm_interconnect_0_jtag_uart_avalon_jtag_slave_read),        //                                .read

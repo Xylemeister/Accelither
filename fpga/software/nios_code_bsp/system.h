@@ -4,7 +4,7 @@
  * Machine generated for CPU 'cpu' in SOPC Builder design 'platform'
  * SOPC Builder design path: ../../platform.sopcinfo
  *
- * Generated: Thu Feb 22 00:34:29 GMT 2024
+ * Generated: Thu Feb 22 18:32:48 GMT 2024
  */
 
 /*
@@ -155,19 +155,19 @@
 #define ALT_NUM_INTERNAL_INTERRUPT_CONTROLLERS 1
 #define ALT_NUM_INTERRUPT_CONTROLLERS 1
 #define ALT_STDERR "/dev/jtag_uart"
-#define ALT_STDERR_BASE 0x21000
+#define ALT_STDERR_BASE 0x21030
 #define ALT_STDERR_DEV jtag_uart
 #define ALT_STDERR_IS_JTAG_UART
 #define ALT_STDERR_PRESENT
 #define ALT_STDERR_TYPE "altera_avalon_jtag_uart"
 #define ALT_STDIN "/dev/jtag_uart"
-#define ALT_STDIN_BASE 0x21000
+#define ALT_STDIN_BASE 0x21030
 #define ALT_STDIN_DEV jtag_uart
 #define ALT_STDIN_IS_JTAG_UART
 #define ALT_STDIN_PRESENT
 #define ALT_STDIN_TYPE "altera_avalon_jtag_uart"
 #define ALT_STDOUT "/dev/jtag_uart"
-#define ALT_STDOUT_BASE 0x21000
+#define ALT_STDOUT_BASE 0x21030
 #define ALT_STDOUT_DEV jtag_uart
 #define ALT_STDOUT_IS_JTAG_UART
 #define ALT_STDOUT_PRESENT
@@ -176,30 +176,84 @@
 
 
 /*
- * filter_in configuration
+ * filter_x configuration
  *
  */
 
-#define ALT_MODULE_CLASS_filter_in altera_avalon_pio
-#define FILTER_IN_BASE 0x0
-#define FILTER_IN_BIT_CLEARING_EDGE_REGISTER 0
-#define FILTER_IN_BIT_MODIFYING_OUTPUT_REGISTER 0
-#define FILTER_IN_CAPTURE 0
-#define FILTER_IN_DATA_WIDTH 16
-#define FILTER_IN_DO_TEST_BENCH_WIRING 0
-#define FILTER_IN_DRIVEN_SIM_VALUE 0
-#define FILTER_IN_EDGE_TYPE "NONE"
-#define FILTER_IN_FREQ 50000000
-#define FILTER_IN_HAS_IN 1
-#define FILTER_IN_HAS_OUT 0
-#define FILTER_IN_HAS_TRI 0
-#define FILTER_IN_IRQ -1
-#define FILTER_IN_IRQ_INTERRUPT_CONTROLLER_ID -1
-#define FILTER_IN_IRQ_TYPE "NONE"
-#define FILTER_IN_NAME "/dev/filter_in"
-#define FILTER_IN_RESET_VALUE 0
-#define FILTER_IN_SPAN 16
-#define FILTER_IN_TYPE "altera_avalon_pio"
+#define ALT_MODULE_CLASS_filter_x altera_avalon_pio
+#define FILTER_X_BASE 0x21020
+#define FILTER_X_BIT_CLEARING_EDGE_REGISTER 0
+#define FILTER_X_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define FILTER_X_CAPTURE 0
+#define FILTER_X_DATA_WIDTH 16
+#define FILTER_X_DO_TEST_BENCH_WIRING 0
+#define FILTER_X_DRIVEN_SIM_VALUE 0
+#define FILTER_X_EDGE_TYPE "NONE"
+#define FILTER_X_FREQ 50000000
+#define FILTER_X_HAS_IN 1
+#define FILTER_X_HAS_OUT 0
+#define FILTER_X_HAS_TRI 0
+#define FILTER_X_IRQ -1
+#define FILTER_X_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define FILTER_X_IRQ_TYPE "NONE"
+#define FILTER_X_NAME "/dev/filter_x"
+#define FILTER_X_RESET_VALUE 0
+#define FILTER_X_SPAN 16
+#define FILTER_X_TYPE "altera_avalon_pio"
+
+
+/*
+ * filter_y configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_filter_y altera_avalon_pio
+#define FILTER_Y_BASE 0x21010
+#define FILTER_Y_BIT_CLEARING_EDGE_REGISTER 0
+#define FILTER_Y_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define FILTER_Y_CAPTURE 0
+#define FILTER_Y_DATA_WIDTH 16
+#define FILTER_Y_DO_TEST_BENCH_WIRING 0
+#define FILTER_Y_DRIVEN_SIM_VALUE 0
+#define FILTER_Y_EDGE_TYPE "NONE"
+#define FILTER_Y_FREQ 50000000
+#define FILTER_Y_HAS_IN 1
+#define FILTER_Y_HAS_OUT 0
+#define FILTER_Y_HAS_TRI 0
+#define FILTER_Y_IRQ -1
+#define FILTER_Y_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define FILTER_Y_IRQ_TYPE "NONE"
+#define FILTER_Y_NAME "/dev/filter_y"
+#define FILTER_Y_RESET_VALUE 0
+#define FILTER_Y_SPAN 16
+#define FILTER_Y_TYPE "altera_avalon_pio"
+
+
+/*
+ * filter_z configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_filter_z altera_avalon_pio
+#define FILTER_Z_BASE 0x21000
+#define FILTER_Z_BIT_CLEARING_EDGE_REGISTER 0
+#define FILTER_Z_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define FILTER_Z_CAPTURE 0
+#define FILTER_Z_DATA_WIDTH 16
+#define FILTER_Z_DO_TEST_BENCH_WIRING 0
+#define FILTER_Z_DRIVEN_SIM_VALUE 0
+#define FILTER_Z_EDGE_TYPE "NONE"
+#define FILTER_Z_FREQ 50000000
+#define FILTER_Z_HAS_IN 1
+#define FILTER_Z_HAS_OUT 0
+#define FILTER_Z_HAS_TRI 0
+#define FILTER_Z_IRQ -1
+#define FILTER_Z_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define FILTER_Z_IRQ_TYPE "NONE"
+#define FILTER_Z_NAME "/dev/filter_z"
+#define FILTER_Z_RESET_VALUE 0
+#define FILTER_Z_SPAN 16
+#define FILTER_Z_TYPE "altera_avalon_pio"
 
 
 /*
@@ -219,7 +273,7 @@
  */
 
 #define ALT_MODULE_CLASS_jtag_uart altera_avalon_jtag_uart
-#define JTAG_UART_BASE 0x21000
+#define JTAG_UART_BASE 0x21030
 #define JTAG_UART_IRQ 0
 #define JTAG_UART_IRQ_INTERRUPT_CONTROLLER_ID 0
 #define JTAG_UART_NAME "/dev/jtag_uart"

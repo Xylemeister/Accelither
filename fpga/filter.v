@@ -4,94 +4,16 @@ module filter (
 	output sdo,
 	output cs_n,
 	output sclk,
-	output [15:0] out,
+	output [15:0] out_x,
+	output [15:0] out_y,
+	output [15:0] out_z,
 	output [9:0] t1
 );
 
-parameter FILTER_SHIFT = 2; 								  // Creates 2**FILTER_SHIFT registers
-parameter TARG_SCLK = 2_000_000;						     // Target frequency for SCLK
-parameter CLK_NUM_FOR_SCLK = 50_000_000 / TARG_SCLK; // Base clock is 50MHz
-parameter SCLK_CYCLES_BETWEEN_READS = TARG_SCLK / 3200;				  // Number of SCLK cycles before read is performed
-
-/*
-reg [16 * (2**FILTER_SHIFT) - 1:0] buffer;
-reg [$clog2(CLK_NUM_FOR_SCLK)/*-1:0]  sclk_timer;
-reg [(($clog2(SCLK_CYCLES_BETWEEN_READS) > 4)	 // Need at least 16 states
-		? $clog2(SCLK_CYCLES_BETWEEN_READS)
-		: 5)/*-1 : 0] read_wait_timer;
-reg read_wait;	// 0 - read, 1 - wait
-reg cs_n_reg1;
-reg cs_n_reg2;
-reg sclk_reg;
-reg sdi_reg;
-
-localparam READ_ADDR = 8'b11110010; // Read multibit X
-
-assign cs_n = (cs_n_reg1 || cs_n_reg2);
-assign out  = ((buffer[15:0] + buffer[31:16]) >> FILTER_SHIFT);
-assign sclk = sclk_reg || cs_n;
-
-reg p0;
-reg p1;
-assign t1 = {cs_n, sclk, sdi, sdo, 4'b0, p0 && sclk_reg & !cs_n, p1 && sclk_reg && !cs_n};
-
-assign sdi = (read_wait_timer < 8) ? sdi_reg : 1'bx;
-
-always @(posedge clk)
-	if (sclk_timer < CLK_NUM_FOR_SCLK)
-		sclk_timer <= sclk_timer + 1;
-	else
-	begin
-		sclk_timer <= 0;
-		sclk_reg <= !sclk_reg;
-	end
-	
-always @(negedge sclk_reg)
-begin
-	if (read_wait)
-		if (read_wait_timer < SCLK_CYCLES_BETWEEN_READS)
-			read_wait_timer <= read_wait_timer + 1;
-		else
-		begin
-			read_wait_timer <= 0;
-			read_wait <= 0;
-			cs_n_reg1 <= 0;
-		end
-	else
-		if (read_wait_timer < 24)
-		begin
-			if (read_wait_timer < 8)
-				sdi_reg <= READ_ADDR[7 - read_wait_timer];
-			else
-				buffer <= {buffer[16 * (2**FILTER_SHIFT) - 1:1], sdo};
-			read_wait_timer <= read_wait_timer + 1;
-		end
-		else
-		begin
-			read_wait_timer <= 0;
-			read_wait <= 1;
-			cs_n_reg1 <= 1;
-		end
-end
-
-always @(posedge sclk_reg)
-begin
-	if (!read_wait) cs_n_reg2 <= 0;
-	else cs_n_reg2 <= 1;
-	if (sdi)
-	begin
-		p1 <= 1;
-		p0 <= 0;
-	end
-	else 
-	begin
-		p0 <= 1;
-		p1 <= 0;
-	end
-end
-		
-initial read_wait = 1;
-*/
+parameter FILTER_SHIFT = 2; 								     // Creates 2**FILTER_SHIFT registers
+parameter TARG_SCLK = 2_000_000;						        // Target frequency for SCLK
+parameter CLK_NUM_FOR_SCLK = 50_000_000 / TARG_SCLK;    // Base clock is 50MHz
+parameter SCLK_CYCLES_BETWEEN_READS = TARG_SCLK / 3200; // Number of SCLK cycles before read is performed
 
 reg status;
 localparam IDLE = 0;
@@ -131,7 +53,9 @@ always @(*)
 	2: write_val <= 16'b11_110010_00000000; // Read
 	endcase
 
-reg [16 * (2**FILTER_SHIFT) - 1:0] buffer;
+	
+localparam BUFFER_SIZE = (16 + 16 + 16) * (2**FILTER_SHIFT);
+reg [BUFFER_SIZE-1:0] buffer;
 
 reg sdo_reg;
 assign sdo = sdo_reg;
@@ -147,11 +71,10 @@ begin
 			status <= SENDING;
 		end
 	else
-		if (sclk_count < (initial_instr < INITIAL_INSTR_COUNT ? 16 : 24))
+		if (sclk_count < (initial_instr < INITIAL_INSTR_COUNT ? 16 : 8 + 16 + 16 + 16))
 		begin
 			cs_n_reg <= 0;
 			if ((initial_instr < INITIAL_INSTR_COUNT) || (sclk_count < 8)) sdo_reg <= write_val[15-sclk_count];
-			else buffer <= {buffer[16 * (2**FILTER_SHIFT) - 2:0], sdi};
 			sclk_count <= sclk_count + 1;
 		end
 		else
@@ -163,25 +86,57 @@ begin
 		end
 end
 
-reg [15:0] out_reg;
-wire [15 + FILTER_SHIFT : 0] filter_val;
-assign filter_val = ({buffer[   7:   0], buffer[   15:   8]} +
-							{buffer[16+7:16+0], buffer[16+15:16+8]} +
-							{buffer[32+7:32+0], buffer[32+15:32+8]} +
-							{buffer[48+7:48+0], buffer[48+15:48+8]}) >> FILTER_SHIFT;
+wire [15:0] val_x_0 = {buffer[(0*48)+39:(0*48)+32], buffer[(0*48)+47:(0*48)+40]};
+wire [15:0] val_y_0 = {buffer[(0*48)+23:(0*48)+16], buffer[(0*48)+31:(0*48)+24]};
+wire [15:0] val_z_0 = {buffer[(0*48)+ 7:(0*48)+ 0], buffer[(0*48)+15:(0*48)+ 8]};
+wire [15:0] val_x_1 = {buffer[(1*48)+39:(1*48)+32], buffer[(1*48)+47:(1*48)+40]};
+wire [15:0] val_y_1 = {buffer[(1*48)+23:(1*48)+16], buffer[(1*48)+31:(1*48)+24]};
+wire [15:0] val_z_1 = {buffer[(1*48)+ 7:(1*48)+ 0], buffer[(1*48)+15:(1*48)+ 8]};
+wire [15:0] val_x_2 = {buffer[(2*48)+39:(2*48)+32], buffer[(2*48)+47:(2*48)+40]};
+wire [15:0] val_y_2 = {buffer[(2*48)+23:(2*48)+16], buffer[(2*48)+31:(2*48)+24]};
+wire [15:0] val_z_2 = {buffer[(2*48)+ 7:(2*48)+ 0], buffer[(2*48)+15:(2*48)+ 8]};
+wire [15:0] val_x_3 = {buffer[(3*48)+39:(3*48)+32], buffer[(3*48)+47:(3*48)+40]};
+wire [15:0] val_y_3 = {buffer[(3*48)+23:(3*48)+16], buffer[(3*48)+31:(3*48)+24]};
+wire [15:0] val_z_3 = {buffer[(3*48)+ 7:(3*48)+ 0], buffer[(3*48)+15:(3*48)+ 8]};
+
+wire [15+FILTER_SHIFT:0] val_x_sum = val_x_0 + val_x_1 + val_x_2 + val_x_3;
+wire [15+FILTER_SHIFT:0] val_y_sum = val_y_0 + val_y_1 + val_y_2 + val_y_3;
+wire [15+FILTER_SHIFT:0] val_z_sum = val_z_0 + val_z_1 + val_z_2 + val_z_3;
+
+reg [15:0] out_x_reg;
+reg [15:0] out_y_reg;
+reg [15:0] out_z_reg;
 
 
-assign out = out_reg;
+assign out_x = out_x_reg;
+assign out_y = out_y_reg;
+assign out_z = out_z_reg;
+
 always @(posedge cs_n)
-	out_reg <= filter_val;
-
+begin
+	out_x_reg <= val_x_sum >> FILTER_SHIFT;
+	out_y_reg <= val_y_sum >> FILTER_SHIFT;
+	out_z_reg <= val_z_sum >> FILTER_SHIFT;
+	s_count_reg <= s_count;
+end
 
 reg p0;
 reg p1;
-assign t1 = {cs_n, sclk, sdi, sdo, sdi == 0, sdo == 0, 2'b0, p0 && sclk_reg && !cs_n, p1 && sclk_reg && !cs_n};
+assign t1 = {cs_n, sclk, sdi, sdo, sdi == 0, sdo == 0, s_count_reg == 48, 1'b0, p0 && sclk_reg && !cs_n, p1 && sclk_reg && !cs_n};
+
+reg [6:0] s_count;
+reg [6:0] s_count_reg;
 
 always @(posedge sclk_reg)
 begin
+	if ((status == SENDING) && (initial_instr >= INITIAL_INSTR_COUNT) && (sclk_count > 8))
+	begin
+		buffer <= {buffer[BUFFER_SIZE - 2:0], sdi};
+		s_count <= s_count + 1;
+	end
+	else
+		s_count <= 0;
+	
 	if (sdo)
 	begin
 		p1 <= 1;
