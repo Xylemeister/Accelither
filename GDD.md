@@ -56,7 +56,7 @@
 - **Music**:
   - Not really needed, could have simple tune if we really wanted to
 
-## 6. Multiplayer (If Applicable)
+## 6. Multiplayer
 - **Network Play**:
   - Competitive survival, can eliminate other players
 - **Server Architecture**: (Need to figure out)
