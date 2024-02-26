@@ -4,6 +4,10 @@
 #include "altera_avalon_pio_regs.h"
 #include "sys/alt_stdio.h"
 
+void printAlt16(const alt_16 val) {
+
+}
+
 int main()
 { 
   alt_putstr("Starting!\n");
@@ -16,8 +20,13 @@ int main()
   }*/
 
   while (1) {
-	  alt_16 val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_IN_BASE);
-	  alt_printf("%x\n", val);
+	  /*alt_16 val_x = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
+	  alt_16 val_y = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Y_BASE);
+	  alt_16 val_z = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Z_BASE);
+	  alt_printf("%x %x %x\n", val_x, val_y, val_z);*/
+	  alt_16 val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
+	  printAlt16(val);
+	  alt_putstr(out_str, )
 	  usleep(1000);
   }
 

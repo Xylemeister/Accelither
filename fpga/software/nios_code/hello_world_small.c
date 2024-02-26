@@ -4,6 +4,18 @@
 #include "altera_avalon_pio_regs.h"
 #include "sys/alt_stdio.h"
 
+alt_u8 toHex(alt_u8 val) {
+	if (val < 10) return '0' + val;
+	else return ('a' - 10) + val;
+}
+
+void printAlt16(const alt_16 val) {
+	alt_putchar(toHex((val & 0xf000) >> 12));
+	alt_putchar(toHex((val & 0x0f00) >> 8));
+	alt_putchar(toHex((val & 0x00f0) >> 4));
+	alt_putchar(toHex(val & 0x000f));
+}
+
 int main()
 { 
   alt_putstr("Starting!\n");
@@ -16,11 +28,18 @@ int main()
   }*/
 
   while (1) {
-	  alt_16 val_x = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
+	  /*alt_16 val_x = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
 	  alt_16 val_y = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Y_BASE);
 	  alt_16 val_z = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Z_BASE);
-	  alt_printf("%x %x %x\n", val_x, val_y, val_z);
-	  usleep(2000);
+	  alt_printf("%x %x %x\n", val_x, val_y, val_z);*/
+	  alt_16 val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
+	  printAlt16(val);
+	  val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Y_BASE);
+	  printAlt16(val);
+	  val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Z_BASE);
+	  printAlt16(val);
+	  alt_putchar('\n');
+	  usleep(1000);
   }
 
   return 0;
