@@ -60,9 +60,9 @@
 - **Network Play**:
   - Competitive survival, can eliminate other players
 - **Server Architecture**: (Need to figure out)
-  - Will we go straight from fpga to game input or through the sever first?
-  - P2P or client-server?
-  - How will we connect and interact?
+  - We will go through the sever first before sending info to game
+  - fpga->client->server->client where all processing and game logic is done on the server
+  - Connecting over udp from server to multiple client concurrently
 - **Matchmaking and Lobbies**:
   - How do we join a game instance?
   - Is there one concurrent room?  
@@ -71,16 +71,15 @@
 - **Engine**:
   - Probaby won't use one
 - **Platforms**:
-  - Strictly downloadable executable or web app?
+  - Strictly downloadable executable linked to via webpage
 - **FPGA Integration**: 
-  -  How will the FPGA's data be integrated into the game?
-  -  Need to detail the data flow and processing. 
+  -  FPGA data streams accelerometer data through client straight to the server for processing
 
 ## 8. Development and Production
 - **Timeline**:
-  - Put major milestones here, possibly have a timeline in another software or formate e.g gantt chart **To edit**
+  - Major milestones [Timeline](./Timeline.md)
 - **Team Roles**:
-  -  We need to list team members and their roles/responsibilities. Also possibly through another format. Could have a work sprint **To edit**
+  - List of team members and their roles/responsibilities. [Role Allocation](./RoleAllocation.md)
 
 ## 9. Ideas
   - Put any ideas here
