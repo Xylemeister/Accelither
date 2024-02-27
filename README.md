@@ -1,5 +1,9 @@
 # Group 1 - Accelither
 
+<p align="center">
+  <img src="./docs/media/Accelither_logo.png" alt="logo">
+</p>
+
 This repository contains an implementation of slither.io controlled via fpga, created as part of the EIE 2nd year Information Processing coursework.
 
 ## Contributors
