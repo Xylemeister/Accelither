@@ -5,7 +5,7 @@
 **This page is an intial template to expand**
 
 ## 1. Game Concept
-- **Title**: slither_FPGA
+- **Title**: Accelither
 - **Concept**: slither controlled through a DE10 lite fpga with possible extra functionality enabled through this
 
 ## 2. Gameplay
