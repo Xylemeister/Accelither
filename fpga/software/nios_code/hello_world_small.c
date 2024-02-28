@@ -16,30 +16,70 @@ void printAlt16(const alt_16 val) {
 	alt_putchar(toHex(val & 0x000f));
 }
 
+void printAlt12(const alt_16 val) {
+	alt_putchar(toHex((val & 0x0f00) >> 8));
+	alt_putchar(toHex((val & 0x00f0) >> 4));
+	alt_putchar(toHex(val & 0x000f));
+}
+
+alt_u8 hexToBits(alt_u8 hex) {
+	if (hex == '/') return 0xff;
+	if (hex >= 'a') return hex - ('a' - 10);
+	return hex - '0';
+}
+
 int main()
-{ 
-  alt_putstr("Starting!\n");
+{
+	while (1) {
+		alt_16 val;
 
-  /*alt_32 x_read;
-  alt_up_accelerometer_spi_dev* acc_dev;
-  acc_dev = alt_up_accelerometer_spi_open_dev("/dev/accelerometer_spi");
-  if (acc_dev == NULL) { // if return 1, check if the spi ip name is "accelerometer_spi"
-      return 1;
-  }*/
+		// Inputs
+		while (hexToBits(alt_getchar()) != 0xff) {}
+		val = 0;
+		val = hexToBits(alt_getchar()); 					// Reads bits [0:3]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [4:7]
+		IOWR_ALTERA_AVALON_PIO_DATA(HEX5_BASE, val >> 1);	// Writes bits [0:6]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [8:11]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [12:15]
+		IOWR_ALTERA_AVALON_PIO_DATA(HEX4_BASE, val >> 2);	// Writes bits [7:13]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [16:19]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [20:23]
+		IOWR_ALTERA_AVALON_PIO_DATA(HEX3_BASE, val >> 3);	// Writes bits [14:20]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [24:27]
+		IOWR_ALTERA_AVALON_PIO_DATA(HEX2_BASE, val);		// Writes bits [21:27]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [28:31]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [32:35]
+		IOWR_ALTERA_AVALON_PIO_DATA(HEX1_BASE, val >> 1);	// Writes bits [28:34]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [36:39]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [40:43]
+		IOWR_ALTERA_AVALON_PIO_DATA(HEX0_BASE, val >> 2);	// Writes bits [35:41]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [44:47]
+		val <<= 4;
+		val += hexToBits(alt_getchar()); 					// Reads bits [48:51]
+		IOWR_ALTERA_AVALON_PIO_DATA(LEDS_BASE, val);		// Writes bits [42:51]
 
-  while (1) {
-	  /*alt_16 val_x = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
-	  alt_16 val_y = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Y_BASE);
-	  alt_16 val_z = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Z_BASE);
-	  alt_printf("%x %x %x\n", val_x, val_y, val_z);*/
-	  alt_16 val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
-	  printAlt16(val);
-	  val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Y_BASE);
-	  printAlt16(val);
-	  val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Z_BASE);
-	  printAlt16(val);
-	  alt_putchar('\n');
-	  usleep(1000);
+		// Outputs
+		val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_X_BASE);
+		printAlt16(val);
+		val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Y_BASE);
+		printAlt16(val);
+		val = IORD_ALTERA_AVALON_PIO_DATA(FILTER_Z_BASE);
+		printAlt16(val);
+		val = IORD_ALTERA_AVALON_PIO_DATA(BUTTONS_BASE) << 10;
+		val += IORD_ALTERA_AVALON_PIO_DATA(SWITCHES_BASE) & 0x3ff;
+		printAlt12(val);
+		alt_putchar('\n');
   }
 
   return 0;

@@ -4,7 +4,7 @@
  * Machine generated for CPU 'cpu' in SOPC Builder design 'platform'
  * SOPC Builder design path: ../../platform.sopcinfo
  *
- * Generated: Thu Feb 22 18:32:48 GMT 2024
+ * Generated: Wed Feb 28 17:10:30 GMT 2024
  */
 
 /*
@@ -155,19 +155,19 @@
 #define ALT_NUM_INTERNAL_INTERRUPT_CONTROLLERS 1
 #define ALT_NUM_INTERRUPT_CONTROLLERS 1
 #define ALT_STDERR "/dev/jtag_uart"
-#define ALT_STDERR_BASE 0x21030
+#define ALT_STDERR_BASE 0x210c0
 #define ALT_STDERR_DEV jtag_uart
 #define ALT_STDERR_IS_JTAG_UART
 #define ALT_STDERR_PRESENT
 #define ALT_STDERR_TYPE "altera_avalon_jtag_uart"
 #define ALT_STDIN "/dev/jtag_uart"
-#define ALT_STDIN_BASE 0x21030
+#define ALT_STDIN_BASE 0x210c0
 #define ALT_STDIN_DEV jtag_uart
 #define ALT_STDIN_IS_JTAG_UART
 #define ALT_STDIN_PRESENT
 #define ALT_STDIN_TYPE "altera_avalon_jtag_uart"
 #define ALT_STDOUT "/dev/jtag_uart"
-#define ALT_STDOUT_BASE 0x21030
+#define ALT_STDOUT_BASE 0x210c0
 #define ALT_STDOUT_DEV jtag_uart
 #define ALT_STDOUT_IS_JTAG_UART
 #define ALT_STDOUT_PRESENT
@@ -176,12 +176,39 @@
 
 
 /*
+ * buttons configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_buttons altera_avalon_pio
+#define BUTTONS_BASE 0x21020
+#define BUTTONS_BIT_CLEARING_EDGE_REGISTER 0
+#define BUTTONS_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define BUTTONS_CAPTURE 0
+#define BUTTONS_DATA_WIDTH 2
+#define BUTTONS_DO_TEST_BENCH_WIRING 0
+#define BUTTONS_DRIVEN_SIM_VALUE 0
+#define BUTTONS_EDGE_TYPE "NONE"
+#define BUTTONS_FREQ 50000000
+#define BUTTONS_HAS_IN 1
+#define BUTTONS_HAS_OUT 0
+#define BUTTONS_HAS_TRI 0
+#define BUTTONS_IRQ -1
+#define BUTTONS_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define BUTTONS_IRQ_TYPE "NONE"
+#define BUTTONS_NAME "/dev/buttons"
+#define BUTTONS_RESET_VALUE 0
+#define BUTTONS_SPAN 16
+#define BUTTONS_TYPE "altera_avalon_pio"
+
+
+/*
  * filter_x configuration
  *
  */
 
 #define ALT_MODULE_CLASS_filter_x altera_avalon_pio
-#define FILTER_X_BASE 0x21020
+#define FILTER_X_BASE 0x210b0
 #define FILTER_X_BIT_CLEARING_EDGE_REGISTER 0
 #define FILTER_X_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define FILTER_X_CAPTURE 0
@@ -208,7 +235,7 @@
  */
 
 #define ALT_MODULE_CLASS_filter_y altera_avalon_pio
-#define FILTER_Y_BASE 0x21010
+#define FILTER_Y_BASE 0x210a0
 #define FILTER_Y_BIT_CLEARING_EDGE_REGISTER 0
 #define FILTER_Y_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define FILTER_Y_CAPTURE 0
@@ -235,7 +262,7 @@
  */
 
 #define ALT_MODULE_CLASS_filter_z altera_avalon_pio
-#define FILTER_Z_BASE 0x21000
+#define FILTER_Z_BASE 0x21090
 #define FILTER_Z_BIT_CLEARING_EDGE_REGISTER 0
 #define FILTER_Z_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define FILTER_Z_CAPTURE 0
@@ -268,12 +295,174 @@
 
 
 /*
+ * hex0 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_hex0 altera_avalon_pio
+#define HEX0_BASE 0x21030
+#define HEX0_BIT_CLEARING_EDGE_REGISTER 0
+#define HEX0_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define HEX0_CAPTURE 0
+#define HEX0_DATA_WIDTH 7
+#define HEX0_DO_TEST_BENCH_WIRING 0
+#define HEX0_DRIVEN_SIM_VALUE 0
+#define HEX0_EDGE_TYPE "NONE"
+#define HEX0_FREQ 50000000
+#define HEX0_HAS_IN 0
+#define HEX0_HAS_OUT 1
+#define HEX0_HAS_TRI 0
+#define HEX0_IRQ -1
+#define HEX0_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define HEX0_IRQ_TYPE "NONE"
+#define HEX0_NAME "/dev/hex0"
+#define HEX0_RESET_VALUE 0
+#define HEX0_SPAN 16
+#define HEX0_TYPE "altera_avalon_pio"
+
+
+/*
+ * hex1 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_hex1 altera_avalon_pio
+#define HEX1_BASE 0x21040
+#define HEX1_BIT_CLEARING_EDGE_REGISTER 0
+#define HEX1_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define HEX1_CAPTURE 0
+#define HEX1_DATA_WIDTH 7
+#define HEX1_DO_TEST_BENCH_WIRING 0
+#define HEX1_DRIVEN_SIM_VALUE 0
+#define HEX1_EDGE_TYPE "NONE"
+#define HEX1_FREQ 50000000
+#define HEX1_HAS_IN 0
+#define HEX1_HAS_OUT 1
+#define HEX1_HAS_TRI 0
+#define HEX1_IRQ -1
+#define HEX1_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define HEX1_IRQ_TYPE "NONE"
+#define HEX1_NAME "/dev/hex1"
+#define HEX1_RESET_VALUE 0
+#define HEX1_SPAN 16
+#define HEX1_TYPE "altera_avalon_pio"
+
+
+/*
+ * hex2 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_hex2 altera_avalon_pio
+#define HEX2_BASE 0x21050
+#define HEX2_BIT_CLEARING_EDGE_REGISTER 0
+#define HEX2_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define HEX2_CAPTURE 0
+#define HEX2_DATA_WIDTH 7
+#define HEX2_DO_TEST_BENCH_WIRING 0
+#define HEX2_DRIVEN_SIM_VALUE 0
+#define HEX2_EDGE_TYPE "NONE"
+#define HEX2_FREQ 50000000
+#define HEX2_HAS_IN 0
+#define HEX2_HAS_OUT 1
+#define HEX2_HAS_TRI 0
+#define HEX2_IRQ -1
+#define HEX2_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define HEX2_IRQ_TYPE "NONE"
+#define HEX2_NAME "/dev/hex2"
+#define HEX2_RESET_VALUE 0
+#define HEX2_SPAN 16
+#define HEX2_TYPE "altera_avalon_pio"
+
+
+/*
+ * hex3 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_hex3 altera_avalon_pio
+#define HEX3_BASE 0x21000
+#define HEX3_BIT_CLEARING_EDGE_REGISTER 0
+#define HEX3_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define HEX3_CAPTURE 0
+#define HEX3_DATA_WIDTH 7
+#define HEX3_DO_TEST_BENCH_WIRING 0
+#define HEX3_DRIVEN_SIM_VALUE 0
+#define HEX3_EDGE_TYPE "NONE"
+#define HEX3_FREQ 50000000
+#define HEX3_HAS_IN 0
+#define HEX3_HAS_OUT 1
+#define HEX3_HAS_TRI 0
+#define HEX3_IRQ -1
+#define HEX3_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define HEX3_IRQ_TYPE "NONE"
+#define HEX3_NAME "/dev/hex3"
+#define HEX3_RESET_VALUE 0
+#define HEX3_SPAN 16
+#define HEX3_TYPE "altera_avalon_pio"
+
+
+/*
+ * hex4 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_hex4 altera_avalon_pio
+#define HEX4_BASE 0x21060
+#define HEX4_BIT_CLEARING_EDGE_REGISTER 0
+#define HEX4_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define HEX4_CAPTURE 0
+#define HEX4_DATA_WIDTH 7
+#define HEX4_DO_TEST_BENCH_WIRING 0
+#define HEX4_DRIVEN_SIM_VALUE 0
+#define HEX4_EDGE_TYPE "NONE"
+#define HEX4_FREQ 50000000
+#define HEX4_HAS_IN 0
+#define HEX4_HAS_OUT 1
+#define HEX4_HAS_TRI 0
+#define HEX4_IRQ -1
+#define HEX4_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define HEX4_IRQ_TYPE "NONE"
+#define HEX4_NAME "/dev/hex4"
+#define HEX4_RESET_VALUE 0
+#define HEX4_SPAN 16
+#define HEX4_TYPE "altera_avalon_pio"
+
+
+/*
+ * hex5 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_hex5 altera_avalon_pio
+#define HEX5_BASE 0x21070
+#define HEX5_BIT_CLEARING_EDGE_REGISTER 0
+#define HEX5_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define HEX5_CAPTURE 0
+#define HEX5_DATA_WIDTH 7
+#define HEX5_DO_TEST_BENCH_WIRING 0
+#define HEX5_DRIVEN_SIM_VALUE 0
+#define HEX5_EDGE_TYPE "NONE"
+#define HEX5_FREQ 50000000
+#define HEX5_HAS_IN 0
+#define HEX5_HAS_OUT 1
+#define HEX5_HAS_TRI 0
+#define HEX5_IRQ -1
+#define HEX5_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define HEX5_IRQ_TYPE "NONE"
+#define HEX5_NAME "/dev/hex5"
+#define HEX5_RESET_VALUE 0
+#define HEX5_SPAN 16
+#define HEX5_TYPE "altera_avalon_pio"
+
+
+/*
  * jtag_uart configuration
  *
  */
 
 #define ALT_MODULE_CLASS_jtag_uart altera_avalon_jtag_uart
-#define JTAG_UART_BASE 0x21030
+#define JTAG_UART_BASE 0x210c0
 #define JTAG_UART_IRQ 0
 #define JTAG_UART_IRQ_INTERRUPT_CONTROLLER_ID 0
 #define JTAG_UART_NAME "/dev/jtag_uart"
@@ -283,6 +472,33 @@
 #define JTAG_UART_TYPE "altera_avalon_jtag_uart"
 #define JTAG_UART_WRITE_DEPTH 64
 #define JTAG_UART_WRITE_THRESHOLD 8
+
+
+/*
+ * leds configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_leds altera_avalon_pio
+#define LEDS_BASE 0x21080
+#define LEDS_BIT_CLEARING_EDGE_REGISTER 0
+#define LEDS_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define LEDS_CAPTURE 0
+#define LEDS_DATA_WIDTH 10
+#define LEDS_DO_TEST_BENCH_WIRING 0
+#define LEDS_DRIVEN_SIM_VALUE 0
+#define LEDS_EDGE_TYPE "NONE"
+#define LEDS_FREQ 50000000
+#define LEDS_HAS_IN 0
+#define LEDS_HAS_OUT 1
+#define LEDS_HAS_TRI 0
+#define LEDS_IRQ -1
+#define LEDS_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define LEDS_IRQ_TYPE "NONE"
+#define LEDS_NAME "/dev/leds"
+#define LEDS_RESET_VALUE 0
+#define LEDS_SPAN 16
+#define LEDS_TYPE "altera_avalon_pio"
 
 
 /*
@@ -312,5 +528,32 @@
 #define MEMORY_SPAN 65536
 #define MEMORY_TYPE "altera_avalon_onchip_memory2"
 #define MEMORY_WRITABLE 1
+
+
+/*
+ * switches configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_switches altera_avalon_pio
+#define SWITCHES_BASE 0x21010
+#define SWITCHES_BIT_CLEARING_EDGE_REGISTER 0
+#define SWITCHES_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define SWITCHES_CAPTURE 0
+#define SWITCHES_DATA_WIDTH 10
+#define SWITCHES_DO_TEST_BENCH_WIRING 0
+#define SWITCHES_DRIVEN_SIM_VALUE 0
+#define SWITCHES_EDGE_TYPE "NONE"
+#define SWITCHES_FREQ 50000000
+#define SWITCHES_HAS_IN 1
+#define SWITCHES_HAS_OUT 0
+#define SWITCHES_HAS_TRI 0
+#define SWITCHES_IRQ -1
+#define SWITCHES_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define SWITCHES_IRQ_TYPE "NONE"
+#define SWITCHES_NAME "/dev/switches"
+#define SWITCHES_RESET_VALUE 0
+#define SWITCHES_SPAN 16
+#define SWITCHES_TYPE "altera_avalon_pio"
 
 #endif /* __SYSTEM_H_ */

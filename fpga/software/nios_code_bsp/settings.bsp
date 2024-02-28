@@ -2,8 +2,8 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>22-Feb-2024 20:33:05</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1708633985357</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>28-Feb-2024 18:16:52</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1709144212106</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>C:\Users\matpi\Desktop\Imperial\Yr2\InfoProc\project\fpga\software\nios_code_bsp</BspGeneratedLocation>
         <BspSettingsFile>settings.bsp</BspSettingsFile>
         <SopcDesignFile>..\..\platform.sopcinfo</SopcDesignFile>
@@ -905,26 +905,80 @@
                 <attributes>memory</attributes>
         </MemoryMap>
         <MemoryMap>
-                <slaveDescriptor>filter_z</slaveDescriptor>
+                <slaveDescriptor>hex3</slaveDescriptor>
                 <addressRange>0x00021000 - 0x0002100F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
-                <slaveDescriptor>filter_y</slaveDescriptor>
+                <slaveDescriptor>switches</slaveDescriptor>
                 <addressRange>0x00021010 - 0x0002101F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
-                <slaveDescriptor>filter_x</slaveDescriptor>
+                <slaveDescriptor>buttons</slaveDescriptor>
                 <addressRange>0x00021020 - 0x0002102F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
+                <slaveDescriptor>hex0</slaveDescriptor>
+                <addressRange>0x00021030 - 0x0002103F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>hex1</slaveDescriptor>
+                <addressRange>0x00021040 - 0x0002104F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>hex2</slaveDescriptor>
+                <addressRange>0x00021050 - 0x0002105F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>hex4</slaveDescriptor>
+                <addressRange>0x00021060 - 0x0002106F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>hex5</slaveDescriptor>
+                <addressRange>0x00021070 - 0x0002107F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>leds</slaveDescriptor>
+                <addressRange>0x00021080 - 0x0002108F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>filter_z</slaveDescriptor>
+                <addressRange>0x00021090 - 0x0002109F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>filter_y</slaveDescriptor>
+                <addressRange>0x000210A0 - 0x000210AF</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>filter_x</slaveDescriptor>
+                <addressRange>0x000210B0 - 0x000210BF</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
                 <slaveDescriptor>jtag_uart</slaveDescriptor>
-                <addressRange>0x00021030 - 0x00021037</addressRange>
+                <addressRange>0x000210C0 - 0x000210C7</addressRange>
                 <addressSpan>8</addressSpan>
                 <attributes>printable</attributes>
         </MemoryMap>

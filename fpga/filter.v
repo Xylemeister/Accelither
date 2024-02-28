@@ -6,8 +6,7 @@ module filter (
 	output sclk,
 	output [15:0] out_x,
 	output [15:0] out_y,
-	output [15:0] out_z,
-	output [9:0] t1
+	output [15:0] out_z
 );
 
 parameter FILTER_SHIFT = 2; 								     // Creates 2**FILTER_SHIFT registers
@@ -49,7 +48,6 @@ always @(*)
 	case (initial_instr)
 	0:	write_val <= 16'b00_110001_00000000; // Standard 4 lane SPI operation
 	1: write_val <= 16'b00_101100_00001111; // 3200 Hz mode
-	//2: write_val <= 16'b
 	2: write_val <= 16'b11_110010_00000000; // Read
 	endcase
 
@@ -117,36 +115,12 @@ begin
 	out_x_reg <= val_x_sum >> FILTER_SHIFT;
 	out_y_reg <= val_y_sum >> FILTER_SHIFT;
 	out_z_reg <= val_z_sum >> FILTER_SHIFT;
-	s_count_reg <= s_count;
 end
-
-reg p0;
-reg p1;
-assign t1 = {cs_n, sclk, sdi, sdo, sdi == 0, sdo == 0, s_count_reg == 48, 1'b0, p0 && sclk_reg && !cs_n, p1 && sclk_reg && !cs_n};
-
-reg [6:0] s_count;
-reg [6:0] s_count_reg;
 
 always @(posedge sclk_reg)
 begin
 	if ((status == SENDING) && (initial_instr >= INITIAL_INSTR_COUNT) && (sclk_count > 8))
-	begin
 		buffer <= {buffer[BUFFER_SIZE - 2:0], sdi};
-		s_count <= s_count + 1;
-	end
-	else
-		s_count <= 0;
-	
-	if (sdo)
-	begin
-		p1 <= 1;
-		p0 <= 0;
-	end
-	else 
-	begin
-		p0 <= 1;
-		p1 <= 0;
-	end
 end
 
 endmodule

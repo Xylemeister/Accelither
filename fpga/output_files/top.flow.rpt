@@ -1,5 +1,5 @@
 Flow report for top
-Thu Feb 22 20:31:45 2024
+Wed Feb 28 17:07:47 2024
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -40,18 +40,18 @@ refer to the applicable agreement for further details.
 +----------------------------------------------------------------------------------+
 ; Flow Summary                                                                     ;
 +------------------------------------+---------------------------------------------+
-; Flow Status                        ; Successful - Thu Feb 22 20:31:42 2024       ;
+; Flow Status                        ; Successful - Wed Feb 28 17:07:44 2024       ;
 ; Quartus Prime Version              ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                      ; top                                         ;
 ; Top-level Entity Name              ; top                                         ;
 ; Family                             ; MAX 10                                      ;
 ; Device                             ; 10M50DAF484C7G                              ;
 ; Timing Models                      ; Final                                       ;
-; Total logic elements               ; 2,150 / 49,760 ( 4 % )                      ;
-;     Total combinational functions  ; 1,934 / 49,760 ( 4 % )                      ;
-;     Dedicated logic registers      ; 1,255 / 49,760 ( 3 % )                      ;
-; Total registers                    ; 1255                                        ;
-; Total pins                         ; 46 / 360 ( 13 % )                           ;
+; Total logic elements               ; 2,335 / 49,760 ( 5 % )                      ;
+;     Total combinational functions  ; 2,079 / 49,760 ( 4 % )                      ;
+;     Dedicated logic registers      ; 1,413 / 49,760 ( 3 % )                      ;
+; Total registers                    ; 1413                                        ;
+; Total pins                         ; 69 / 360 ( 19 % )                           ;
 ; Total virtual pins                 ; 0                                           ;
 ; Total memory bits                  ; 535,552 / 1,677,312 ( 32 % )                ;
 ; Embedded Multiplier 9-bit elements ; 0 / 288 ( 0 % )                             ;
@@ -66,27 +66,34 @@ refer to the applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 02/22/2024 20:30:48 ;
+; Start date & time ; 02/28/2024 17:06:34 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; top                 ;
 +-------------------+---------------------+
 
 
-+-------------------------------------------------------------------------------------------------------------------------+
-; Flow Non-Default Global Settings                                                                                        ;
-+-------------------------------------+----------------------------------------+---------------+-------------+------------+
-; Assignment Name                     ; Value                                  ; Default Value ; Entity Name ; Section Id ;
-+-------------------------------------+----------------------------------------+---------------+-------------+------------+
-; COMPILER_SIGNATURE_ID               ; 10995770589193.170863384824164         ; --            ; --          ; --         ;
-; MAX_CORE_JUNCTION_TEMP              ; 85                                     ; --            ; --          ; --         ;
-; MIN_CORE_JUNCTION_TEMP              ; 0                                      ; --            ; --          ; --         ;
-; PARTITION_COLOR                     ; -- (Not supported for targeted family) ; --            ; --          ; Top        ;
-; PARTITION_FITTER_PRESERVATION_LEVEL ; -- (Not supported for targeted family) ; --            ; --          ; Top        ;
-; PARTITION_NETLIST_TYPE              ; -- (Not supported for targeted family) ; --            ; --          ; Top        ;
-; POWER_BOARD_THERMAL_MODEL           ; None (CONSERVATIVE)                    ; --            ; --          ; --         ;
-; POWER_PRESET_COOLING_SOLUTION       ; 23 MM HEAT SINK WITH 200 LFPM AIRFLOW  ; --            ; --          ; --         ;
-; PROJECT_OUTPUT_DIRECTORY            ; output_files                           ; --            ; --          ; --         ;
-+-------------------------------------+----------------------------------------+---------------+-------------+------------+
++---------------------------------------------------------------------------------------------------------------------------------------------+
+; Flow Non-Default Global Settings                                                                                                            ;
++-------------------------------------+------------------------------------------------------------+---------------+-------------+------------+
+; Assignment Name                     ; Value                                                      ; Default Value ; Entity Name ; Section Id ;
++-------------------------------------+------------------------------------------------------------+---------------+-------------+------------+
+; COMPILER_SIGNATURE_ID               ; 10995770589193.170913999322016                             ; --            ; --          ; --         ;
+; MAX_CORE_JUNCTION_TEMP              ; 85                                                         ; --            ; --          ; --         ;
+; MIN_CORE_JUNCTION_TEMP              ; 0                                                          ; --            ; --          ; --         ;
+; MISC_FILE                           ; platform/synthesis/../platform.cmp                         ; --            ; --          ; --         ;
+; MISC_FILE                           ; platform/synthesis/../../platform.qsys                     ; --            ; --          ; --         ;
+; PARTITION_COLOR                     ; -- (Not supported for targeted family)                     ; --            ; --          ; Top        ;
+; PARTITION_FITTER_PRESERVATION_LEVEL ; -- (Not supported for targeted family)                     ; --            ; --          ; Top        ;
+; PARTITION_NETLIST_TYPE              ; -- (Not supported for targeted family)                     ; --            ; --          ; Top        ;
+; POWER_BOARD_THERMAL_MODEL           ; None (CONSERVATIVE)                                        ; --            ; --          ; --         ;
+; POWER_PRESET_COOLING_SOLUTION       ; 23 MM HEAT SINK WITH 200 LFPM AIRFLOW                      ; --            ; --          ; --         ;
+; PROJECT_OUTPUT_DIRECTORY            ; output_files                                               ; --            ; --          ; --         ;
+; SLD_FILE                            ; platform/synthesis/platform.regmap                         ; --            ; --          ; --         ;
+; SLD_FILE                            ; platform/synthesis/platform.debuginfo                      ; --            ; --          ; --         ;
+; SLD_INFO                            ; QSYS_NAME platform HAS_SOPCINFO 1 GENERATION_ID 1709139663 ; --            ; platform    ; --         ;
+; SOPCINFO_FILE                       ; platform/synthesis/../../platform.sopcinfo                 ; --            ; --          ; --         ;
+; SYNTHESIS_ONLY_QIP                  ; On                                                         ; --            ; --          ; --         ;
++-------------------------------------+------------------------------------------------------------+---------------+-------------+------------+
 
 
 +--------------------------------------------------------------------------------------------------------------------------+
@@ -94,11 +101,11 @@ refer to the applicable agreement for further details.
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis ; 00:00:40     ; 1.0                     ; 4975 MB             ; 00:00:15                           ;
-; Fitter               ; 00:00:08     ; 1.8                     ; 6457 MB             ; 00:00:07                           ;
-; Assembler            ; 00:00:03     ; 1.0                     ; 4696 MB             ; 00:00:01                           ;
-; Timing Analyzer      ; 00:00:02     ; 2.7                     ; 4974 MB             ; 00:00:02                           ;
-; Total                ; 00:00:53     ; --                      ; --                  ; 00:00:25                           ;
+; Analysis & Synthesis ; 00:00:53     ; 1.0                     ; 4992 MB             ; 00:00:21                           ;
+; Fitter               ; 00:00:11     ; 1.7                     ; 6490 MB             ; 00:00:07                           ;
+; Assembler            ; 00:00:03     ; 1.0                     ; 4702 MB             ; 00:00:01                           ;
+; Timing Analyzer      ; 00:00:02     ; 2.6                     ; 4981 MB             ; 00:00:02                           ;
+; Total                ; 00:01:09     ; --                      ; --                  ; 00:00:31                           ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
