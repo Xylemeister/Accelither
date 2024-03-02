@@ -63,8 +63,8 @@ Provides 3 namespaces with functions:
 
 ### <a name="local-de10-instr">How to use:
 - Ensure [the FPGA is programmed](#fpga-instr), the [NIOS II code is running](#fpga-software-instr) and the [shell script in the `/stream/` subdirectory is running](#local-de10-stream-instr),
-- Copy this directory to the directory with your python program wanting to interact with the de10,
-- Use `import de10` to import.
+- Copy this directory to the directory with your python program wanting to interact with the de10 (Note: the previously run shell script can be run from any directory on a device and will work for all programs, no need to re-run it in this new directory),
+- Use `import de10` in Python to import.
 
 ## <a name="local-de10-stream"></a>/local/de10/stream/
 
