@@ -9,9 +9,9 @@
 |  | Set up version control (Git repository) and ensure private settings. | 28/02/2024 [ x ] |
 |  | Initial setup of development environments for FPGA and server. | 01/03/2024 [ ] |
 |  | Draft initial game design document (GDD) for slither_FPGA. | 02/03/2024 [ ] |
-| FPGA Development | Implement basic local processing of accelerometer data. | [ ] |
-|  | Test data streaming from FPGA to local machine. | [ ] |
-| Cloud Server Setup | Begin exploring options for cloud server platforms and APIs. | [ ] |
+| FPGA Development | Implement basic local processing of accelerometer data. | 22/02/2024 [ x ] |
+|  | Test data streaming from FPGA to local machine. | 22/02/2024 [ x ] |
+| Cloud Server Setup | Begin exploring options for cloud server platforms and APIs. | [  ] |
 |  | Draft architecture for cloud server and client communication. | [ ] |
 |  | Establish communication protocol between FPGA (node) and server. | [ ] |
 | Gameplay Mechanics | Develop basic 2D movement mechanics controlled by FPGA input. | [ ] |
@@ -24,7 +24,7 @@
 | Cloud Server Setup | Optimize cloud server for real-time multiplayer. | [ ] |
 |  | Secure communication channels. | [ ] |
 | Gameplay Mechanics | Refine game mechanics based on initial feedback. | [ ] |
-| FPGA Development | Implement advanced data processing for accelerometer inputs. | [ ] |
+| FPGA Development | Implement advanced data processing for accelerometer inputs. | 02/03/2024 [ x ] |
 |  | Develop and test additional node functionality for expanded gameplay. | [ ] |
 | UI/UX Design | Prototype new UI elements for expanded gameplay features. | [ ] |
 |  | Gather user feedback on UI/UX improvements. | [ ] |

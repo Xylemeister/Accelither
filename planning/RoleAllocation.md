@@ -9,35 +9,37 @@
 | Currently Working On | | Implemented | | Planning to Work On |
 |--------------------------|-|------------------------------|-|---------------------------------|
 | N/A | | N/A | | N/A |
-| N/A | | N/A | |N/A |
+| N/A | | N/A | | N/A |
 
 ### Hanif: 
 
 | Currently Working On | | Implemented | | Planning to Work On |
 |--------------------------|-|------------------------------|-|---------------------------------|
 | N/A | | N/A | | N/A |
-| N/A | | N/A | |N/A |
+| N/A | | N/A | | N/A |
 
 ### Lucas:
 
 | Currently Working On | | Implemented | | Planning to Work On |
 |--------------------------|-|------------------------------|-|---------------------------------|
 | N/A | | N/A | | N/A |
-| N/A | | N/A | |N/A |
+| N/A | | N/A | | N/A |
 
 ### Mateusz: 
 
 | Currently Working On | | Implemented | | Planning to Work On |
 |--------------------------|-|------------------------------|-|---------------------------------|
+| N/A | | [FPGA Development](#fpga-development) | | N/A |
+| [Cloud Server Architecutre](#cloud-server-architecture) - abstracting `socket` module into Python module | | N/A | | [Cloud Server Architecutre](#cloud-server-architecture) - working on communication between client device and server |
+| N/A | | N/A | | [Multiplayer and Network](#multiplayer-and-network) - using the networking module above in the game |
 | N/A | | N/A | | N/A |
-| N/A | | N/A | |N/A |
 
 ### Maximilian: 
 
 | Currently Working On | | Implemented | | Planning to Work On |
 |--------------------------|-|------------------------------|-|---------------------------------|
 | N/A | | N/A | | N/A |
-| N/A | | N/A | |N/A |
+| N/A | | N/A | | N/A |
 
 
 ### Sophie:
@@ -45,7 +47,7 @@
 | Currently Working On | | Implemented | | Planning to Work On |
 |--------------------------|-|------------------------------|-|---------------------------------|
 | N/A | | N/A | | N/A |
-| N/A | | N/A | |N/A |
+| N/A | | N/A | | N/A |
 
 
 
@@ -85,9 +87,11 @@
 - Develop server logic for handling multiple players and game states.
 
 ### UI/UX Design
+
 - Develop UI for displaying score, abilities, and leaderboard.
 - Design interactive elements for enhanced player experience.
 
 ### Quality Assurance and Testing
+
 - Begin initial testing of game mechanics and FPGA integration.
 - Conduct comprehensive testing across all components.
