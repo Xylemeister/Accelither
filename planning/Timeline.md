@@ -14,7 +14,7 @@
 | Cloud Server Setup | Begin exploring options for cloud server platforms and APIs. | [  ] |
 |  | Draft architecture for cloud server and client communication. | [ ] |
 |  | Establish communication protocol between FPGA (node) and server. | [ ] |
-| Gameplay Mechanics | Develop basic 2D movement mechanics controlled by FPGA input. | [ ] |
+| Gameplay Mechanics | Develop basic 2D movement mechanics controlled by FPGA input. | 26/02/2024 [ x ] |
 |  | Implement snake growth and collision logic. | [ ] |
 
 ### Week 2: Intermediate Features Development and Initial Multiplayer Testing (04 March - 10 March)
