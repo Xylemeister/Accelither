@@ -1,10 +1,10 @@
 # Project Source Files
 
-## /fpga/
+## <a name="fpga">/fpga/
 
 This directory contains all the code relating to the FPGA device.
 
-### Features and functionality:
+### <a name="fpga-features">Features and functionality:
 
 The FPGA device is programmed with a NIOS II instance, which is connected to the DE10's LEDs, 7 segment displays, switches, buttons and accelerometer. It is then programmed to receive inputs for the LEDs and 7 segment displays (which are immediately applied) and responds with the states of the switches, buttons, and accelerometer.
 
@@ -16,7 +16,7 @@ The accelerometer hardware, which performs high-speed SPI communication, then pe
 
 The platform designer project files are in `/fpga/platform/`. They are already compiled in the repo.
 
-### How to use:
+### <a name="fpga-instr">How to use:
 
 - Ensure the DE10 is connected and working,
 - Start Quartus and open `/fpga/fpga_code.qpf`,
@@ -24,11 +24,11 @@ The platform designer project files are in `/fpga/platform/`. They are already c
 - Open the Programmer, which should open `top.cdf`,
 - Start the code on the DE10.
 
-## /fpga/software/
+## <a name="fpga-software">/fpga/software/
 
 This directory contains all the code to be run on the NIOS II instance on the cpu.
 
-### Features and functionality:
+### <a name="fpga-software-features">Features and functionality:
 
 For details on communication, see Features and functionality in [/fpga/](#fpga). The implementation uses `alt_getchar()` and `alt_putchar()` for input and output.
 
@@ -36,7 +36,7 @@ The source code is all in `/fpga/software/nios_code/hello_world_small.c`
 
 The BSP is in `/fpga/software/nios_code_bsp/`
 
-### How to use:
+### <a name="fpga-software-instr">How to use:
 
 - First, ensure the FPGA is programmed, as described in [/fpga/](#fpga),
 - Open "Nios II Software Build Tools for Eclipse" in Quartus,
@@ -45,11 +45,11 @@ The BSP is in `/fpga/software/nios_code_bsp/`
 - Run the project on DE10.
 - To have programmatic access to the DE10, ensure the terminal in Eclipse is closed and ensure the I/O stream is constantly running, as described in [/local/de10/stream/](#local-de10-stream).
 
-## /local/de10/
+## <a name="local-de10">/local/de10/
 
 This is a python module which interacts with the DE10, giving the user options to get inputs from and set outputs to the board.
 
-### Features and functionality:
+### <a name="local-de10-features">Features and functionality:
 
 Provides 3 namespaces with functions:
 
@@ -61,8 +61,8 @@ Provides 3 namespaces with functions:
 	- The accelerometer readings can be obtained in a format more akin to that of a joystick: instead of outputting x, y and z, it instead outputs an angle and magnitude in the x-y plane. One version of this function returns the observed magnitude total magnitude (which ideally should only be gravity and be constant, but will have noticeable variations as users will inevitable cause translation movement and not just rotation), and the other version outputs values which only change when the total magnitude is equal to gravity (it outputs the most recent valid reading at all times, and ignores readings with abnormal magnitudes).
 - `Calibration` contains functions which get the range of expected values in all axes and stores them in a file for normalising future readings (see `Input` namespace above). Consideration was put into making the calibration easy to incorporate with a user interface, so the directions which still need to be calibrated can be obtained (to then forward to the user). However, this theoretically only needs to be performed once per DE10 board, so the final project doesn't necessarily need to use any of this functionality, as long as the boards are all calibrated in advance.
 
-### How to use:
-- Ensure the FPGA is programmed, the NIOS II code is running and the shell script in the `/stream/` subdirectory is running,
+### <a name="local-de10-instr">How to use:
+- Ensure [the FPGA is programmed](#fpga-instr), the [NIOS II code is running](#fpga-software-instr) and the [shell script in the `/stream/` subdirectory is running](#local-de10-stream-instr),
 - Copy this directory to the directory with your python program wanting to interact with the de10,
 - Use `import de10` to import.
 
@@ -70,15 +70,15 @@ Provides 3 namespaces with functions:
 
 This directory contains a shell script which has to be run to have programmatic access to the DE10.
 
-### Features and functionality:
+### <a name="local-de10-stream-features">Features and functionality:
 
-Uses shared memory to perform I/O with the DE10 in parallel to other programs. The `de10` Python module connects to this shared memory behind-the-scenes.
+Uses shared memory to perform I/O with the DE10 in parallel to other programs. [The `de10` Python module](#local-de10) connects to this shared memory behind-the-scenes.
 
 If a problem with the DE10 occurs, the shell script crashes and needs to manually be restarted.
 
-### How to use:
+### <a name="local-de10-stream-instr">How to use:
 
-- Ensure the FPGA is programmed and the NIOS II code is running, and no other instance of `nios2-terminal` is running (including the instance in Eclipse),
+- Ensure the [FPGA is programmed](#fpga-instr) and the [NIOS II code is running](#fpga-software-instr), and no other instance of `nios2-terminal` is running (including the instance in Eclipse),
 -  Open a terminal and run `NIOS II Command Shell.bat` (the default path is provided at the start of both Python files in the directory),
 - `cd` into this directory, such that `accelerometer_stream.sh` is shown after `ls`
 - Run `./accelerometer_stream.sh`. The terminal can now be minimised but shouldn't be closed.
