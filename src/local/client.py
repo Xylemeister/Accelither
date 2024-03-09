@@ -13,9 +13,10 @@ SCREEN_X = 720
 SCREEN_Y = 480
 
 # Snake and food dimensions
-SNAKE_WIDTH = 20
-FOOD_WIDTH = 15
 SCORE_COLOUR = (255, 0, 247)
+FOOD_RAD = 10
+SNAKE_RAD = 10
+HEAD_RAD = 15
 
 # Initialize pygame
 pygame.init()
@@ -34,6 +35,12 @@ def show_score(choice, colour, font, size, score):
     score_font = pygame.font.SysFont(font, size)
     score_surface = score_font.render('Score : ' + str(score), True, colour)
     score_rect = score_surface.get_rect()
+    acc.Input.set7Seg(0,(0,0,0,0,0,0,0))
+    acc.Input.set7Seg(1,(0,0,0,0,0,0,0))
+    acc.Input.set7Seg(2,(0,0,0,0,0,0,0))
+    acc.Input.set7Seg(3,(0,0,0,0,0,0,0))
+    acc.Input.set7Seg(4,str(score//10))
+    acc.Input.set7Seg(5,str(score%10))
     if choice == 1:
         score_rect.midtop = (SCREEN_X/10, 15)
     else:
@@ -62,15 +69,14 @@ def render_game_state(screen, game_state):
     # Render players
     for player_data in game_state['players']:
         for segment in player_data['body']:
-            pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(segment[0], segment[1], SNAKE_WIDTH, SNAKE_WIDTH))
+            pygame.draw.circle(screen, (255, 255, 255), (segment[0], segment[1]), SNAKE_RAD)
 
     # Render food
     food = game_state['food']
     if (game_state['food_eaten']):
         sounds['omnom'].play()
-    pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(food['x'], food['y'], FOOD_WIDTH, FOOD_WIDTH))
+    pygame.draw.circle(screen, (255, 0, 0), (food['x'], food['y']), FOOD_RAD)
     show_score(1, SCORE_COLOUR, 'Comic Sans', 20, game_state['score'])
-    acc.Input.set7Seg(1,2)
 
     # Update the display
     pygame.display.flip()

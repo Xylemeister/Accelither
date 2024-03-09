@@ -14,12 +14,28 @@ SCREEN_X= 720
 SCREEN_Y=480
 INIT_X = 100.0
 INIT_Y = 50.0
-FOOD_WIDTH = 15
-SNAKE_WIDTH = 20
+FOOD_RAD = 10
+SNAKE_RAD = 10
+HEAD_RAD = 15
 SPEED = 5
 
 pygame.init()
 clock = pygame.time.Clock()
+
+def check_collision_circle(circle1, circle2):
+    diffx = circle1[0] - circle2[0]
+    diffy = circle1[1] - circle2[1]
+    dist = math.sqrt(diffx**2 + diffy**2)
+    if dist < circle1[2] + circle2[2]:
+        return True
+    else:
+        return False
+    
+def check_collision_circle_list(circle, circle_list):
+    for c in circle_list:
+        if check_collision_circle(circle,c):
+            return True
+    return False
 
 class Player:
     def __init__(self, player_id, x, y):
@@ -27,7 +43,6 @@ class Player:
         self.x = x
         self.y = y
         self.body = [(x,y)]
-        self.body_rect = [pygame.Rect(x,y,SNAKE_WIDTH,SNAKE_WIDTH)]
         self.score = 0
         self.dirX = 0
         self.dirY = 0
@@ -55,7 +70,7 @@ class Food:
 class GameData:
     def __init__(self):
         self.players = {}
-        self.food = Food(random.randint(0, SCREEN_X - FOOD_WIDTH), random.randint(0, SCREEN_Y - FOOD_WIDTH))
+        self.food = Food(random.randint(FOOD_RAD, SCREEN_X - FOOD_RAD), random.randint(FOOD_RAD, SCREEN_Y - FOOD_RAD))
         self.lock = threading.Lock()
 
     def add_player(self, player_id, x, y):
@@ -88,36 +103,34 @@ class GameData:
                 player.x -= x_in * SPEED
                 player.y += y_in * SPEED
                 player.body.insert(0, (player.x, player.y))
-                player.body_rect.insert(0, pygame.Rect(player.x, player.y, SNAKE_WIDTH, SNAKE_WIDTH))
     
     def reduce_player_body(self, player_id):
         with self.lock:
             if player_id in self.players:
                 self.players[player_id].body.pop()
-                self.players[player_id].body_rect.pop()
 
     def generate_food(self):
         with self.lock:
-            x = random.randint(0, SCREEN_X - FOOD_WIDTH)
-            y = random.randint(0, SCREEN_Y - FOOD_WIDTH)
+            x = random.randint(FOOD_RAD, SCREEN_X - FOOD_RAD)
+            y = random.randint(FOOD_RAD, SCREEN_Y - FOOD_RAD)
             self.food = Food(x, y)
 
     def check_collision_player(self, player_id) -> bool:
         player = self.players[player_id]
-        player_head_rect = pygame.Rect(player.x,player.y,SNAKE_WIDTH,SNAKE_WIDTH)
+        player_head_circle = (player.x, player.y,SNAKE_RAD)
         
-        all_player_bodies = [rect for player in self.players.values() if player.player_id != player_id for rect in player.body_rect]
-        if (player_head_rect.collidelistall(all_player_bodies) != []):
+        all_player_bodies = [(player.x,player.y,SNAKE_RAD) for player in self.players.values() if player.player_id != player_id]
+        if check_collision_circle_list(player_head_circle, all_player_bodies):
             return True
-        if (player.x < 0 or player.x > SCREEN_X-SNAKE_WIDTH or player.y < 0 or player.y > SCREEN_Y-SNAKE_WIDTH):
+        if (player.x < SNAKE_RAD or player.x > SCREEN_X-SNAKE_RAD or player.y < SNAKE_RAD or player.y > SCREEN_Y-SNAKE_RAD):
             return True
         return False
     
     def check_eat_food(self, player_id):
         player = self.players[player_id]
-        player_head_rect = pygame.Rect(player.x,player.y,SNAKE_WIDTH,SNAKE_WIDTH)
-        food_rect = pygame.Rect(self.food.x, self.food.y, FOOD_WIDTH, FOOD_WIDTH)
-        if player_head_rect.colliderect(food_rect):
+        player_head_circle = (player.x,player.y,SNAKE_RAD)
+        food_circle = (self.food.x, self.food.y, FOOD_RAD)
+        if check_collision_circle(player_head_circle,food_circle):
             self.generate_food()
             with self.lock:
                 player.score += 1

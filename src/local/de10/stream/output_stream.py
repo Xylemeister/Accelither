@@ -6,7 +6,7 @@ from time import sleep
 OUTPUT_BYTE_COUNT = 7
 SHARED_MEMORY_NAME = "acc_out"
 
-FREQUENCY = 1000
+FREQUENCY = 100
 
 # Create if doesn't exist
 try:
