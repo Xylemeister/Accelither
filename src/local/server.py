@@ -17,7 +17,6 @@ INIT_Y = 50.0
 FOOD_RAD = 10
 SNAKE_RAD = 10
 HEAD_RAD = 15
-SPEED = 5
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -46,6 +45,7 @@ class Player:
         self.score = 0
         self.dirX = 0
         self.dirY = 0
+        self.speed = 5
 
     def to_dict(self):
         return {
@@ -82,6 +82,10 @@ class GameData:
             if player_id in self.players:
                 del self.players[player_id]
 
+    def set_player_speed(self, player_id, speed):
+        with self.lock:
+            self.players[player_id].speed = speed
+
     def move_player(self, player_id, x_in, y_in):
         with self.lock:
             if player_id in self.players:
@@ -100,8 +104,8 @@ class GameData:
                     x_in = player.dirX
                     y_in = player.dirY
 
-                player.x -= x_in * SPEED
-                player.y += y_in * SPEED
+                player.x -= x_in * player.speed
+                player.y += y_in * player.speed
                 player.body.insert(0, (player.x, player.y))
     
     def reduce_player_body(self, player_id):
@@ -169,6 +173,8 @@ class ServerThread(threading.Thread):
                 msg = json.loads(json_msg)
                 x = msg["x"]
                 y = msg["y"]
+                speed = msg["speed"]
+                self.game_data.set_player_speed(self.player_id, speed)
                 self.game_data.move_player(self.player_id, x, y)
                 eaten = self.game_data.check_eat_food(self.player_id)
                 collide = self.game_data.check_collision_player(self.player_id)

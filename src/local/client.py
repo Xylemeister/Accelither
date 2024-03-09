@@ -17,6 +17,7 @@ SCORE_COLOUR = (255, 0, 247)
 FOOD_RAD = 10
 SNAKE_RAD = 10
 HEAD_RAD = 15
+speed = 5
 
 # Initialize pygame
 pygame.init()
@@ -91,7 +92,8 @@ def main():
     while True:
         msg = {
         'x' : acc.Input.getX(),
-        'y' : acc.Input.getY()}
+        'y' : acc.Input.getY(),
+        'speed': speed+acc.Input.getButton(0)*3-acc.Input.getButton(1)*3}
         print(msg)
 
         msg_json = json.dumps(msg)
