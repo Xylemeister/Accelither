@@ -145,14 +145,14 @@ class GameData:
         centerx = self.players[player_id].x
         centery = self.players[player_id].y
         return_dict = self.to_dict()
-        for player in return_dict["players"]:
-            player['x'] = player['x'] - centerx+SCREEN_X//2
-            player['y'] = player['y'] - centery+SCREEN_Y//2
-            player['body'] = [(x-centerx+SCREEN_X//2, y-centery+SCREEN_Y//2) for x,y in player['body']]
+        for player in return_dict['players']:
+            player['x'] = round(player['x'] - centerx+SCREEN_X//2,2)
+            player['y'] = round(player['y'] - centery+SCREEN_Y//2,2)
+            player['body'] = [(round(x-centerx+SCREEN_X//2,2), round(y-centery+SCREEN_Y//2,2)) for x,y in player['body']]
 
-        return_dict['food']['x'] = return_dict['food']['x'] - centerx+SCREEN_X//2
-        return_dict['food']['y'] = return_dict['food']['y'] - centery+SCREEN_Y//2
-        return return_dict, (SCREEN_X//2-centerx,SCREEN_Y//2-centery)
+        return_dict['food']['x'] = round(return_dict['food']['x'] - centerx+SCREEN_X//2,2)
+        return_dict['food']['y'] = round(return_dict['food']['y'] - centery+SCREEN_Y//2,2)
+        return return_dict, (round(SCREEN_X//2-centerx,2),round(SCREEN_Y//2-centery))
 
     
     def check_eat_food(self, player_id):
