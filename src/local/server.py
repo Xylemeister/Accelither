@@ -10,6 +10,8 @@ import math
 HOST = '172.31.47.170'
 PORT = 12000
 
+ARENA_X = 1000
+ARENA_Y = 1000
 SCREEN_X= 720
 SCREEN_Y=480
 INIT_X = 100.0
@@ -41,7 +43,7 @@ class Player:
         self.player_id = player_id
         self.x = x
         self.y = y
-        self.body = [(x,y)]
+        self.body = [(x,y) for _ in range(0,10)]
         self.score = 0
         self.dirX = 0
         self.dirY = 0
@@ -70,7 +72,7 @@ class Food:
 class GameData:
     def __init__(self):
         self.players = {}
-        self.food = Food(random.randint(FOOD_RAD, SCREEN_X - FOOD_RAD), random.randint(FOOD_RAD, SCREEN_Y - FOOD_RAD))
+        self.food = Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD))
         self.lock = threading.Lock()
 
     def add_player(self, player_id, x, y):
@@ -123,12 +125,33 @@ class GameData:
         player = self.players[player_id]
         player_head_circle = (player.x, player.y,SNAKE_RAD)
         
-        all_player_bodies = [(player.x,player.y,SNAKE_RAD) for player in self.players.values() if player.player_id != player_id]
+        all_player_bodies = []
+        for player in self.players.values():
+            if player.player_id != player_id:
+                for index, segment in enumerate(player.body):
+                    if index == 0:
+                        all_player_bodies.append((segment[0],segment[1],HEAD_RAD))
+                    else:
+                        all_player_bodies.append((segment[0],segment[1],SNAKE_RAD))
         if check_collision_circle_list(player_head_circle, all_player_bodies):
             return True
-        if (player.x < SNAKE_RAD or player.x > SCREEN_X-SNAKE_RAD or player.y < SNAKE_RAD or player.y > SCREEN_Y-SNAKE_RAD):
+        if (player.x < SNAKE_RAD or player.x > ARENA_X-SNAKE_RAD or player.y < SNAKE_RAD or player.y > ARENA_Y-SNAKE_RAD):
             return True
         return False
+    
+    def render_to_player(self, player_id):
+        centerx = self.players[player_id].x
+        centery = self.players[player_id].y
+        return_dict = self.to_dict()
+        for player in return_dict["players"]:
+            player['x'] = player['x'] - centerx+SCREEN_X//2
+            player['y'] = player['y'] - centery+SCREEN_Y//2
+            player['body'] = [(x-centerx+SCREEN_X//2, y-centery+SCREEN_Y//2) for x,y in player['body']]
+
+        return_dict['food']['x'] = return_dict['food']['x'] - centerx+SCREEN_X//2
+        return_dict['food']['y'] = return_dict['food']['y'] - centery+SCREEN_Y//2
+        return return_dict, (SCREEN_X//2-centerx,SCREEN_Y//2-centery)
+
     
     def check_eat_food(self, player_id):
         player = self.players[player_id]
@@ -181,10 +204,11 @@ class ServerThread(threading.Thread):
                 if collide:
                     print("collide??")
                     self.alive = False
-                game_state = self.game_data.to_dict()
+                game_state, boundary_box = self.game_data.render_to_player(self.player_id)
                 game_state['alive'] = self.alive
                 game_state['score'] = self.game_data.players[self.player_id].score
                 game_state['food_eaten'] = eaten
+                game_state['boundary_box'] = boundary_box
                 msg = json.dumps(game_state)
                 self.connection.send(msg.encode(), self.player_id)
         

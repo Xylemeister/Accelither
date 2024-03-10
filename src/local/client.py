@@ -3,6 +3,7 @@ import json
 import de10 as acc
 from netcode.TCPConnection import TCPConnection
 import time
+import math
 
 # Server IP address and port
 HOST = '13.48.57.52'
@@ -31,6 +32,16 @@ sounds = { "omnom" : pygame.mixer.Sound("eat_sound.mp3"),
            "oopsydaisy" : pygame.mixer.Sound("collision_sound.mp3"),
            "womp_womp" : pygame.mixer.Sound("womp-womp.mp3")
          }
+
+
+def get_angle(x, y):
+    
+    # Calculate the angle using arctangent (in radians) and convert to degrees
+    angle_rad = math.atan2(y, x)  # Note the negative sign for y
+    angle_deg = math.degrees(angle_rad)
+
+    return angle_deg-90
+
 
 def show_score(choice, colour, font, size, score):
     score_font = pygame.font.SysFont(font, size)
@@ -62,15 +73,36 @@ def gamover(score):
     time.sleep(5)
     pygame.quit()
 
+def blitRotate(surf, image, origin, pivot, angle):
+    image_rect = image.get_rect(topleft = (origin[0] - pivot[0], origin[1]-pivot[1]))
+    offset_center_to_pivot = pygame.math.Vector2(origin) - image_rect.center
+    rotated_offset = offset_center_to_pivot.rotate(-angle)
+    rotated_image_center = (origin[0] - rotated_offset.x, origin[1] - rotated_offset.y)
+    rotated_image = pygame.transform.rotozoom(image, angle, 0.7)
+    rotated_image_rect = rotated_image.get_rect(center = rotated_image_center)
+    surf.blit(rotated_image, rotated_image_rect)
+
 # Function to render game state
 def render_game_state(screen, game_state):
     # Clear the screen
     screen.fill((0, 0, 0))
-
-    # Render players
+    snake_head = pygame.image.load('snake.svg')
+    x = acc.Input.getX()
+    y = acc.Input.getY()
+    
     for player_data in game_state['players']:
-        for segment in player_data['body']:
-            pygame.draw.circle(screen, (255, 255, 255), (segment[0], segment[1]), SNAKE_RAD)
+        print(len(player_data['body']))
+        for index, segment in enumerate(reversed(player_data['body'])):
+            if index == len(player_data['body'])-1:  # Draw the head of the snake
+                blitRotate(screen, snake_head, segment, (21.3,20), get_angle(x,y))
+            else:
+                pygame.draw.circle(screen, (160, 196, 50), segment, SNAKE_RAD)
+    
+    pygame.draw.rect(screen, (255,255,255), pygame.Rect(game_state['boundary_box'][0], game_state['boundary_box'][1], 1000, 1000), 3)
+    # Render players
+    #for player_data in game_state['players']:
+        #for segment in player_data['body']:
+            #pygame.draw.circle(screen, (255, 255, 255), (segment[0], segment[1]), SNAKE_RAD)
 
     # Render food
     food = game_state['food']
