@@ -210,24 +210,28 @@ class ServerThread(threading.Thread):
             # this kills player via TCPConnection
             if client_input:
                 json_msg = client_input.decode()
-                msg = json.loads(json_msg)
-                x = msg["x"]
-                y = msg["y"]
-                speed = msg["speed"]
-                self.game_data.set_player_speed(self.player_id, speed)
-                self.game_data.move_player(self.player_id, x, y)
-                eaten = self.game_data.check_eat_food(self.player_id)
-                collide = self.game_data.check_collision_player(self.player_id)
-                if collide:
-                    self.alive = False
-                game_state, boundary_box = self.game_data.render_to_player(self.player_id)
-                game_state['alive'] = self.alive
-                game_state['score'] = self.game_data.players[self.player_id].score
-                game_state['food_eaten'] = eaten
-                game_state['boundary_box'] = boundary_box
-                msg = json.dumps(game_state)
-                self.connection.send(msg.encode(), self.player_id)
-                print("sent")
+                try: 
+                    msg = json.loads(json_msg)
+                    x = msg["x"]
+                    y = msg["y"]
+                    speed = msg["speed"]
+                    self.game_data.set_player_speed(self.player_id, speed)
+                    self.game_data.move_player(self.player_id, x, y)
+                    eaten = self.game_data.check_eat_food(self.player_id)
+                    collide = self.game_data.check_collision_player(self.player_id)
+                    if collide:
+                        self.alive = False
+                    game_state, boundary_box = self.game_data.render_to_player(self.player_id)
+                    game_state['alive'] = self.alive
+                    game_state['score'] = self.game_data.players[self.player_id].score
+                    game_state['food_eaten'] = eaten
+                    game_state['boundary_box'] = boundary_box
+                    msg_out = json.dumps(game_state)
+                    self.connection.send(msg_out.encode(), self.player_id)
+                    print("sent")
+                except:
+                    print("failed")
+                    print(json_msg)
         
 
 def main():

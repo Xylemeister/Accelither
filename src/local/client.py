@@ -142,6 +142,7 @@ def main():
                     exit()
             except:
                 print("failed")
+                print(game_state_json)
                 continue
 
         # Tick the clock
