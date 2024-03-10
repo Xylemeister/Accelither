@@ -74,7 +74,7 @@ class Food:
 class GameData:
     def __init__(self):
         self.players = {}
-        self.food = Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD))
+        self.foods = [Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)) for _ in range(0,10)]
         self.lock = threading.Lock()
 
     def add_player(self, player_id, x, y):
@@ -119,9 +119,9 @@ class GameData:
 
     def generate_food(self):
         with self.lock:
-            x = random.randint(FOOD_RAD, SCREEN_X - FOOD_RAD)
-            y = random.randint(FOOD_RAD, SCREEN_Y - FOOD_RAD)
-            self.food = Food(x, y)
+            x = random.randint(FOOD_RAD, ARENA_X - FOOD_RAD)
+            y = random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)
+            self.foods.append(Food(x, y))
 
     def check_collision_player(self, player_id) -> bool:
         player = self.players[player_id]
@@ -150,29 +150,31 @@ class GameData:
             player['y'] = round(player['y'] - centery+SCREEN_Y//2,2)
             player['body'] = [(round(x-centerx+SCREEN_X//2,2), round(y-centery+SCREEN_Y//2,2)) for x,y in player['body']]
 
-        return_dict['food']['x'] = round(return_dict['food']['x'] - centerx+SCREEN_X//2,2)
-        return_dict['food']['y'] = round(return_dict['food']['y'] - centery+SCREEN_Y//2,2)
+        for food in return_dict['foods']:
+            food['x'] = round(food['x'] - centerx+SCREEN_X//2,2)
+            food['y'] = round(food['y'] - centery+SCREEN_Y//2,2)
         return return_dict, (round(SCREEN_X//2-centerx,2),round(SCREEN_Y//2-centery))
 
     
     def check_eat_food(self, player_id):
         player = self.players[player_id]
         player_head_circle = (player.x,player.y,SNAKE_RAD)
-        food_circle = (self.food.x, self.food.y, FOOD_RAD)
-        if check_collision_circle(player_head_circle,food_circle):
-            self.generate_food()
-            with self.lock:
-                player.score += 1
-            return True
-        else: 
-            self.reduce_player_body(player_id)
-            return False
+        food_circles = [(food.x, food.y, FOOD_RAD) for food in self.foods]
+        for index, food_circle in enumerate(food_circles):
+            if check_collision_circle(player_head_circle,food_circle):
+                with self.lock:
+                    self.foods.pop(index)
+                    self.generate_food()
+                    player.score += 1
+                    return True
+        self.reduce_player_body(player_id)
+        return False
 
 
     def to_dict(self):
         return {
             "players": [player.to_dict() for player in self.players.values()],
-            "food": self.food.to_dict()
+            "foods": [food.to_dict() for food in self.foods]
         }
 
 class ServerThread(threading.Thread):

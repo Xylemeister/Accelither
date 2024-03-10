@@ -98,16 +98,14 @@ def render_game_state(screen, game_state):
                 pygame.draw.circle(screen, (160, 196, 50), segment, SNAKE_RAD)
     
     pygame.draw.rect(screen, (255,255,255), pygame.Rect(game_state['boundary_box'][0], game_state['boundary_box'][1], 1000, 1000), 3)
-    # Render players
-    #for player_data in game_state['players']:
-        #for segment in player_data['body']:
-            #pygame.draw.circle(screen, (255, 255, 255), (segment[0], segment[1]), SNAKE_RAD)
 
-    # Render food
-    food = game_state['food']
     if (game_state['food_eaten']):
         sounds['omnom'].play()
-    pygame.draw.circle(screen, (255, 0, 0), (food['x'], food['y']), FOOD_RAD)
+
+    # Render food
+    foods = game_state['foods']
+    for food in foods:
+        pygame.draw.circle(screen, (255, 0, 0), (food['x'], food['y']), FOOD_RAD)
     show_score(1, SCORE_COLOUR, 'Comic Sans', 20, game_state['score'])
 
     # Update the display
