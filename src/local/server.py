@@ -14,8 +14,8 @@ ARENA_X = 1000
 ARENA_Y = 1000
 SCREEN_X= 720
 SCREEN_Y=480
-INIT_X = 100.0
-INIT_Y = 50.0
+INIT_X = 500
+INIT_Y = 500
 FOOD_RAD = 10
 SNAKE_RAD = 10
 HEAD_RAD = 15
@@ -55,7 +55,9 @@ class Player:
             "x": round(self.x, 2),
             "y": round(self.y, 2),
             "body": [(round(x,2),round(y,2)) for (x,y) in self.body],
-            "score": self.score
+            "score": self.score,
+            "dirX" : round(self.dirX, 2),
+            "dirY" : round(self.dirY, 2)
         }
 
 class Food:

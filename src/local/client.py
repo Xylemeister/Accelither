@@ -87,11 +87,10 @@ def render_game_state(screen, game_state):
     # Clear the screen
     screen.fill((0, 0, 0))
     snake_head = pygame.image.load('snake.svg')
-    x = acc.Input.getX()
-    y = acc.Input.getY()
     
     for player_data in game_state['players']:
-        print(len(player_data['body']))
+        x = player_data['dirX']
+        y = player_data['dirY']
         for index, segment in enumerate(reversed(player_data['body'])):
             if index == len(player_data['body'])-1:  # Draw the head of the snake
                 blitRotate(screen, snake_head, segment, (21.3,20), get_angle(x,y))
