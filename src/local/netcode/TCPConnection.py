@@ -109,7 +109,7 @@ class TCPConnection():
                 self.is_alive[1][client_index] = False
                 return False
     
-    __BUFFER_SIZE = 4096
+    __BUFFER_SIZE = 8192
     def recv(self, client_index = 0, timeout = False):
         """
         For `host = True`:\n

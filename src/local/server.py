@@ -77,8 +77,20 @@ class GameData:
         self.foods = [Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)) for _ in range(0,10)]
         self.lock = threading.Lock()
 
-    def add_player(self, player_id, x, y):
+    def add_player(self, player_id):
+        print("added player")
         with self.lock:
+            not_valid = True
+            x,y = 0,0
+            while not_valid:
+                not_valid = False
+                x = random.randint(100, ARENA_X-100)
+                y = random.randint(100, ARENA_Y-100)
+                for player in self.players.values():
+                    dist = math.sqrt((player.x-x)**2 + (player.y-y)**2)
+                    if dist < 200:
+                        not_valid = True
+                        break
             self.players[player_id] = Player(player_id, x, y)
 
     def remove_player(self, player_id):
@@ -128,16 +140,18 @@ class GameData:
         player_head_circle = (player.x, player.y,SNAKE_RAD)
         
         all_player_bodies = []
-        for player in self.players.values():
-            if player.player_id != player_id:
-                for index, segment in enumerate(player.body):
+        for other_player in self.players.values():
+            if other_player.player_id != player_id:
+                for index, segment in enumerate(other_player.body):
                     if index == 0:
                         all_player_bodies.append((segment[0],segment[1],HEAD_RAD))
                     else:
                         all_player_bodies.append((segment[0],segment[1],SNAKE_RAD))
         if check_collision_circle_list(player_head_circle, all_player_bodies):
+            print("player colision " + str(player_id))
             return True
         if (player.x < SNAKE_RAD or player.x > ARENA_X-SNAKE_RAD or player.y < SNAKE_RAD or player.y > ARENA_Y-SNAKE_RAD):
+            print("wall collision " + str(player_id))
             return True
         return False
     
@@ -146,14 +160,14 @@ class GameData:
         centery = self.players[player_id].y
         return_dict = self.to_dict()
         for player in return_dict['players']:
-            player['x'] = round(player['x'] - centerx+SCREEN_X//2,2)
-            player['y'] = round(player['y'] - centery+SCREEN_Y//2,2)
-            player['body'] = [(round(x-centerx+SCREEN_X//2,2), round(y-centery+SCREEN_Y//2,2)) for x,y in player['body']]
+            player['x'] = round(player['x'] - centerx+SCREEN_X//2,1)
+            player['y'] = round(player['y'] - centery+SCREEN_Y//2,1)
+            player['body'] = [(round(x-centerx+SCREEN_X//2,1), round(y-centery+SCREEN_Y//2,1)) for x,y in player['body']]
 
         for food in return_dict['foods']:
-            food['x'] = round(food['x'] - centerx+SCREEN_X//2,2)
-            food['y'] = round(food['y'] - centery+SCREEN_Y//2,2)
-        return return_dict, (round(SCREEN_X//2-centerx,2),round(SCREEN_Y//2-centery))
+            food['x'] = round(food['x'] - centerx+SCREEN_X//2,1)
+            food['y'] = round(food['y'] - centery+SCREEN_Y//2,1)
+        return return_dict, (round(SCREEN_X//2-centerx,1), round(SCREEN_Y//2-centery,1))
 
     
     def check_eat_food(self, player_id):
@@ -164,9 +178,9 @@ class GameData:
             if check_collision_circle(player_head_circle,food_circle):
                 with self.lock:
                     self.foods.pop(index)
-                    self.generate_food()
                     player.score += 1
-                    return True
+                self.generate_food()
+                return True
         self.reduce_player_body(player_id)
         return False
 
@@ -184,15 +198,14 @@ class ServerThread(threading.Thread):
         self.game_data = game_data
         self.player_id = player_id
         self.alive = True
-        self.game_data.add_player(player_id, INIT_X, INIT_Y)
+        self.game_data.add_player(player_id)
 
     def run(self):
         while self.connection.isAlive(self.player_id):
             if not self.alive:
                 time.sleep(0.1)
-                print("removed player")
+                print("remove player")
                 self.game_data.remove_player(self.player_id)
-            print("alive!")
             client_input = self.connection.recv(self.player_id)
             # this kills player via TCPConnection
             if client_input:
@@ -206,7 +219,6 @@ class ServerThread(threading.Thread):
                 eaten = self.game_data.check_eat_food(self.player_id)
                 collide = self.game_data.check_collision_player(self.player_id)
                 if collide:
-                    print("collide??")
                     self.alive = False
                 game_state, boundary_box = self.game_data.render_to_player(self.player_id)
                 game_state['alive'] = self.alive
@@ -215,6 +227,7 @@ class ServerThread(threading.Thread):
                 game_state['boundary_box'] = boundary_box
                 msg = json.dumps(game_state)
                 self.connection.send(msg.encode(), self.player_id)
+                print("sent")
         
 
 def main():
@@ -222,14 +235,14 @@ def main():
     game_data = GameData()
 
     server = TCPConnection(HOST, PORT, host=True)
-    server.setMaxClients(3)
+    server.setMaxClients(5)
 
     while server.isAlive():
         client_index = server.acceptNewClient()
         if client_index is not None:
             server_thread = ServerThread(server, client_index, game_data)
             server_thread.start()
-        print(game_data.to_dict())
+        #print(game_data.to_dict())
         clock.tick(60)
 
 if __name__ == "__main__":

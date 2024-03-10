@@ -123,7 +123,6 @@ def main():
         'x' : acc.Input.getX(),
         'y' : acc.Input.getY(),
         'speed': speed+acc.Input.getButton(0)*3-acc.Input.getButton(1)*3}
-        print(msg)
 
         msg_json = json.dumps(msg)
         
@@ -133,13 +132,17 @@ def main():
         # Receive game state from the server
         game_state_json = connection.recv(timeout=0.1)
         if game_state_json:
-            game_state = json.loads(game_state_json)
-            score = game_state['score']
-            render_game_state(screen, game_state)
-            if not game_state['alive']:
-                connection.close()
-                gamover(score)
-                exit()
+            try:
+                game_state = json.loads(game_state_json)
+                score = game_state['score']
+                render_game_state(screen, game_state)
+                if not game_state['alive']:
+                    connection.close()
+                    gamover(score)
+                    exit()
+            except:
+                print("failed")
+                continue
 
         # Tick the clock
         clock.tick(60)
