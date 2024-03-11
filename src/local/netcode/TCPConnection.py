@@ -133,6 +133,9 @@ class TCPConnection():
             except ConnectionAbortedError:
                 self.is_alive[1][client_index] = False
                 return b""
+            except:
+                self.is_alive[1][client_index] = False
+                return b""
             
         else:
             if timeout != False: self.socket.settimeout(timeout)

@@ -98,6 +98,7 @@ def show_score(choice, colour, font, size, score):
     screen.blit(score_surface, score_rect)
 
 def gamover(score, connection):
+    print("enter gameover")
     sounds["oopsydaisy"].play()
     my_font = pygame.font.SysFont('Times New Roman', 90)
     game_over_surface = my_font.render('YOU DIED', True, (252,3,3) )
@@ -112,17 +113,18 @@ def gamover(score, connection):
     y_offset = 50
 
     leaderboard_data = connection.recv(timeout=0.1)
+    print("leaderboard data:")
     print(leaderboard_data)
-    '''
-    for rank, (username, score) in enumerate(leaderboard_data, start=1):
+    
+    for rank, score_dict in enumerate(leaderboard_data, start=1):
         rank_text = font.render(f"{rank}.", True, (0, 0, 0))
         screen.blit(rank_text, (50, y_offset))
-        username_text = font.render(username, True, (0, 0, 0))
+        username_text = font.render(score_dict['player_id'], True, (0, 0, 0))
         screen.blit(username_text, (100, y_offset))
-        score_text = font.render(str(score), True, (0, 0, 0))
+        score_text = font.render(str(score_dict['highscore']), True, (0, 0, 0))
         screen.blit(score_text, (300, y_offset))
         y_offset += 30
-    '''
+
     pygame.display.flip()
     sounds["womp_womp"].play()
     time.sleep(5)
@@ -201,9 +203,10 @@ def main():
                 score = game_state['score']
                 render_game_state(screen, game_state)
                 if not game_state['alive']:
+                    print("actually died")
                     gamover(score, connection)
                     connection.close()
-                    exit()
+                    sys.exit()
             except:
                 print("failed")
                 print(game_state_json)

@@ -5,6 +5,7 @@ from netcode.TCPConnection import TCPConnection
 import json
 import time
 import math
+import sys
 from database import update_high_score, register_player, get_top_three_scores
 
 #select a server port
@@ -221,41 +222,45 @@ class ServerThread(threading.Thread):
     def run(self):
         while self.connection.isAlive(self.player_id):
             if not self.alive:
-                time.sleep(0.1)
                 update_high_score(self.username, self.game_data.players[self.player_id].score)
                 leaderboard = get_top_three_scores()
-                print(leaderboard)
                 leaderboard_msg = json.dumps(leaderboard)
                 self.connection.send(leaderboard_msg.encode(), self.player_id)
                 time.sleep(0.1)
                 print("remove player")
                 self.game_data.remove_player(self.player_id)
-            client_input = self.connection.recv(self.player_id)
-            # this kills player via TCPConnection
-            if client_input:
-                json_msg = client_input.decode()
-                try: 
-                    msg = json.loads(json_msg)
-                    x = msg["x"]
-                    y = msg["y"]
-                    speed = msg["speed"]
-                    self.game_data.set_player_speed(self.player_id, speed)
-                    self.game_data.move_player(self.player_id, x, y)
-                    eaten = self.game_data.check_eat_food(self.player_id)
-                    collide = self.game_data.check_collision_player(self.player_id)
-                    if collide:
-                        self.alive = False
-                    game_state, boundary_box = self.game_data.render_to_player(self.player_id)
-                    game_state['alive'] = self.alive
-                    game_state['score'] = self.game_data.players[self.player_id].score
-                    game_state['food_eaten'] = eaten
-                    game_state['boundary_box'] = boundary_box
-                    msg_out = json.dumps(game_state)
-                    self.connection.send(msg_out.encode(), self.player_id)
-                    print("sent")
-                except:
-                    print("failed")
-                    print(json_msg)
+                self.connection.clients[self.player_id].close()
+                self.connection.is_alive[1][self.player_id] = False
+            try:
+                client_input = self.connection.recv(self.player_id)
+                if client_input != b"":
+                    json_msg = client_input.decode()
+                    try: 
+                        msg = json.loads(json_msg)
+                        x = msg["x"]
+                        y = msg["y"]
+                        speed = msg["speed"]
+                        self.game_data.set_player_speed(self.player_id, speed)
+                        self.game_data.move_player(self.player_id, x, y)
+                        eaten = self.game_data.check_eat_food(self.player_id)
+                        collide = self.game_data.check_collision_player(self.player_id)
+                        if collide:
+                            self.alive = False
+                        game_state, boundary_box = self.game_data.render_to_player(self.player_id)
+                        game_state['alive'] = self.alive
+                        game_state['score'] = self.game_data.players[self.player_id].score
+                        game_state['food_eaten'] = eaten
+                        game_state['boundary_box'] = boundary_box
+                        msg_out = json.dumps(game_state)
+                        self.connection.send(msg_out.encode(), self.player_id)
+                        print("sent")
+                    except:
+                        print("failed")
+                        print(json_msg)
+                else:
+                    sys.exit()
+            except:
+                sys.exit()
         
 
 def main():
