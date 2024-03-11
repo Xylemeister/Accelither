@@ -112,18 +112,25 @@ def gamover(score, connection):
     font = pygame.font.SysFont(None, 32)
     y_offset = 50
 
-    leaderboard_data = connection.recv(timeout=0.1)
-    print("leaderboard data:")
-    print(leaderboard_data)
-    
-    for rank, score_dict in enumerate(leaderboard_data, start=1):
-        rank_text = font.render(f"{rank}.", True, (0, 0, 0))
+    leaderboard_data_json = {}
+    not_valid = True
+    while not_valid:
+        try: 
+            leaderboard_data = connection.recv(timeout=0.1)
+            leaderboard_data_json = json.loads(leaderboard_data.decode())
+            print(leaderboard_data_json[0]['HighScore'])
+            not_valid = False
+        except:
+            continue
+
+    for rank, score_dict in enumerate(leaderboard_data_json, start=1):
+        rank_text = font.render(str(rank), True, (255, 255, 255))
         screen.blit(rank_text, (50, y_offset))
-        username_text = font.render(score_dict['player_id'], True, (0, 0, 0))
+        username_text = font.render(score_dict['PlayerId'], True, (255, 255, 255))
         screen.blit(username_text, (100, y_offset))
-        score_text = font.render(str(score_dict['highscore']), True, (0, 0, 0))
+        score_text = font.render(str(score_dict['HighScore']), True, (255, 255, 255))
         screen.blit(score_text, (300, y_offset))
-        y_offset += 30
+        y_offset += 30    
 
     pygame.display.flip()
     sounds["womp_womp"].play()
@@ -181,9 +188,10 @@ def main():
     username = input_username()
     # Initialize the TCP connection
     connection = TCPConnection(HOST, PORT)
+    not_break = True
 
     # Main loop
-    while True:
+    while not_break:
         msg = {
         'username' : username,
         'x' : acc.Input.getX(),
@@ -203,17 +211,15 @@ def main():
                 score = game_state['score']
                 render_game_state(screen, game_state)
                 if not game_state['alive']:
-                    print("actually died")
                     gamover(score, connection)
                     connection.close()
-                    sys.exit()
+                    not_break = False
             except:
-                print("failed")
                 print(game_state_json)
                 continue
-
         # Tick the clock
         clock.tick(60)
 
 if __name__ == "__main__":
     main()
+    sys.exit()

@@ -225,6 +225,7 @@ class ServerThread(threading.Thread):
                 update_high_score(self.username, self.game_data.players[self.player_id].score)
                 leaderboard = get_top_three_scores()
                 leaderboard_msg = json.dumps(leaderboard)
+                print(leaderboard_msg)
                 self.connection.send(leaderboard_msg.encode(), self.player_id)
                 time.sleep(0.1)
                 print("remove player")
