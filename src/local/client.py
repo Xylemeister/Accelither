@@ -33,6 +33,44 @@ sounds = { "omnom" : pygame.mixer.Sound("eat_sound.mp3"),
            "womp_womp" : pygame.mixer.Sound("womp-womp.mp3")
          }
 
+import pygame
+import sys
+
+def input_username():
+
+    # Set up fonts
+    font = pygame.font.SysFont(None, 32)
+
+    username = ""
+    input_rect = pygame.Rect(100, 100, 200, 50)
+    active = False
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_rect.collidepoint(event.pos):
+                    active = True
+                else:
+                    active = False
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        return username
+                    elif event.key == pygame.K_BACKSPACE:
+                        username = username[:-1]
+                    else:
+                        username += event.unicode
+
+        screen.fill((255, 255, 255))
+        pygame.draw.rect(screen, (0, 0, 0), input_rect, 2)
+
+        text_surface = font.render(username, True, (0, 0, 0))
+        screen.blit(text_surface, (input_rect.x + 5, input_rect.y + 5))
+
+        pygame.display.flip()
 
 def get_angle(x, y):
     
@@ -59,7 +97,7 @@ def show_score(choice, colour, font, size, score):
         score_rect.midtop = (SCREEN_X/2, SCREEN_Y/1.25)
     screen.blit(score_surface, score_rect)
 
-def gamover(score):
+def gamover(score, connection):
     sounds["oopsydaisy"].play()
     my_font = pygame.font.SysFont('Times New Roman', 90)
     game_over_surface = my_font.render('YOU DIED', True, (252,3,3) )
@@ -68,6 +106,23 @@ def gamover(score):
     screen.fill((10,10,10))
     screen.blit(game_over_surface, game_over_rect)
     show_score(0, (252,3,3), 'Comic Sans', 20, score)
+
+    # Display leaderboard data
+    font = pygame.font.SysFont(None, 32)
+    y_offset = 50
+
+    leaderboard_data = connection.recv(timeout=0.1)
+    print(leaderboard_data)
+    '''
+    for rank, (username, score) in enumerate(leaderboard_data, start=1):
+        rank_text = font.render(f"{rank}.", True, (0, 0, 0))
+        screen.blit(rank_text, (50, y_offset))
+        username_text = font.render(username, True, (0, 0, 0))
+        screen.blit(username_text, (100, y_offset))
+        score_text = font.render(str(score), True, (0, 0, 0))
+        screen.blit(score_text, (300, y_offset))
+        y_offset += 30
+    '''
     pygame.display.flip()
     sounds["womp_womp"].play()
     time.sleep(5)
@@ -89,13 +144,20 @@ def render_game_state(screen, game_state):
     snake_head = pygame.image.load('snake.svg')
     
     for player_data in game_state['players']:
-        x = player_data['dirX']
-        y = player_data['dirY']
+        username = player_data['username']
+        dirX = player_data['dirX']
+        dirY = player_data['dirY']
         for index, segment in enumerate(reversed(player_data['body'])):
             if index == len(player_data['body'])-1:  # Draw the head of the snake
-                blitRotate(screen, snake_head, segment, (21.3,20), get_angle(x,y))
+                blitRotate(screen, snake_head, segment, (21.3,20), get_angle(dirX,dirY))
             else:
                 pygame.draw.circle(screen, (160, 196, 50), segment, SNAKE_RAD)
+        font = pygame.font.SysFont(None, 24)
+        text_surface = font.render(username, True, (255, 255, 255))
+        headx = player_data['body'][0][0]
+        heady = player_data['body'][0][1]
+        text_rect = text_surface.get_rect(center=(headx, heady-30))
+        screen.blit(text_surface,text_rect)
     
     pygame.draw.rect(screen, (255,255,255), pygame.Rect(game_state['boundary_box'][0], game_state['boundary_box'][1], 1000, 1000), 3)
 
@@ -114,12 +176,14 @@ def render_game_state(screen, game_state):
 # Main function to run the client
 def main():
 
+    username = input_username()
     # Initialize the TCP connection
     connection = TCPConnection(HOST, PORT)
 
     # Main loop
     while True:
         msg = {
+        'username' : username,
         'x' : acc.Input.getX(),
         'y' : acc.Input.getY(),
         'speed': speed+acc.Input.getButton(0)*3-acc.Input.getButton(1)*3}
@@ -137,8 +201,8 @@ def main():
                 score = game_state['score']
                 render_game_state(screen, game_state)
                 if not game_state['alive']:
+                    gamover(score, connection)
                     connection.close()
-                    gamover(score)
                     exit()
             except:
                 print("failed")

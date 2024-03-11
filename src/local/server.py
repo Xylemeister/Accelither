@@ -5,6 +5,7 @@ from netcode.TCPConnection import TCPConnection
 import json
 import time
 import math
+from database import update_high_score, register_player, get_top_three_scores
 
 #select a server port
 HOST = '172.31.47.170'
@@ -39,7 +40,8 @@ def check_collision_circle_list(circle, circle_list):
     return False
 
 class Player:
-    def __init__(self, player_id, x, y):
+    def __init__(self, player_id, username, x, y):
+        self.username = username
         self.player_id = player_id
         self.x = x
         self.y = y
@@ -51,6 +53,7 @@ class Player:
 
     def to_dict(self):
         return {
+            "username" : self.username,
             "player_id": self.player_id,
             "x": round(self.x, 2),
             "y": round(self.y, 2),
@@ -77,7 +80,7 @@ class GameData:
         self.foods = [Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)) for _ in range(0,10)]
         self.lock = threading.Lock()
 
-    def add_player(self, player_id):
+    def add_player(self, player_id, username):
         print("added player")
         with self.lock:
             not_valid = True
@@ -91,7 +94,7 @@ class GameData:
                     if dist < 200:
                         not_valid = True
                         break
-            self.players[player_id] = Player(player_id, x, y)
+            self.players[player_id] = Player(player_id, username, x, y)
 
     def remove_player(self, player_id):
         with self.lock:
@@ -198,11 +201,32 @@ class ServerThread(threading.Thread):
         self.game_data = game_data
         self.player_id = player_id
         self.alive = True
-        self.game_data.add_player(player_id)
+        no_username = True
+        while(no_username):
+            client_input = self.connection.recv(self.player_id)
+            if client_input:
+                json_msg = client_input.decode()
+                try: 
+                    msg = json.loads(json_msg)
+                    username = msg["username"]
+                    if username == "":
+                        username = "Guest"+str(self.player_id)
+                    no_username = False
+                    self.game_data.add_player(player_id, username)
+                    register_player(username)
+                    self.username = username
+                except:
+                    continue
 
     def run(self):
         while self.connection.isAlive(self.player_id):
             if not self.alive:
+                time.sleep(0.1)
+                update_high_score(self.username, self.game_data.players[self.player_id].score)
+                leaderboard = get_top_three_scores()
+                print(leaderboard)
+                leaderboard_msg = json.dumps(leaderboard)
+                self.connection.send(leaderboard_msg.encode(), self.player_id)
                 time.sleep(0.1)
                 print("remove player")
                 self.game_data.remove_player(self.player_id)
