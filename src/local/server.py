@@ -7,9 +7,12 @@ import time
 import math
 import sys
 from database import update_high_score, register_player, get_top_three_scores
+from PIL import Image
+import os
+
 
 #select a server port
-HOST = '172.31.47.116'
+HOST = '172.31.45.48'
 PORT = 12000
 
 ARENA_X = 1000
@@ -23,6 +26,37 @@ SNAKE_RAD = 10
 HEAD_RAD = 15
 
 clock = pygame.time.Clock()
+
+
+# -------------------------------------------------------Get Random Snake----------------------------------------------------------------#
+
+
+def get_majority_color(image_path):
+    with Image.open(image_path) as img:
+        img = img.convert("RGB")
+        all_colors = img.getcolors(maxcolors=1000000)
+        most_common_color = sorted(all_colors, key=lambda x: x[0], reverse=True)[0][1]
+    return most_common_color
+
+def load_random_snake_head(heads_directory):
+    files = [f for f in os.listdir(heads_directory) if f.endswith(('.jpg', '.png'))]
+    selected_file = random.choice(files)
+    file_path = os.path.join(heads_directory, selected_file)
+    image = pygame.image.load(file_path).convert_alpha()
+    majority_color = get_majority_color(file_path)
+    return majority_color, file_path
+
+def initialize_player_heads(heads_directory, players):
+    # Initialize or update player data with head images and majority colors
+    for player in players:
+        if 'head_image_path' not in player or 'body_color' not in player:  # Check if already initialized
+            majority_color, head_image_path = load_random_snake_head(heads_directory)
+            player['head_image_path'] = head_image_path  
+            player['body_color'] = majority_color
+    return players
+
+# ---------------------------------------------------------------------------------------------------------------------------------#
+
 
 def check_collision_circle(circle1, circle2):
     diffx = circle1[0] - circle2[0]
@@ -40,7 +74,7 @@ def check_collision_circle_list(circle, circle_list):
     return False
 
 class Player:
-    def __init__(self, player_id, username, x, y):
+    def __init__(self, player_id, username, x, y, head_image_path, body_color):
         self.username = username
         self.player_id = player_id
         self.x = x
@@ -50,6 +84,8 @@ class Player:
         self.dirX = 0
         self.dirY = 0
         self.speed = 3
+        self.head_image_path = head_image_path  # Path to the head image
+        self.body_color = body_color  # RGB color tuple
 
     def to_dict(self):
         return {
@@ -60,7 +96,9 @@ class Player:
             "body": [(round(x,2),round(y,2)) for (x,y) in self.body],
             "score": self.score,
             "dirX" : round(self.dirX, 2),
-            "dirY" : round(self.dirY, 2)
+            "dirY" : round(self.dirY, 2),
+            "head_image": self.head_image_path,
+            "body_color": self.body_color
         }
 
 class Food:
@@ -75,7 +113,8 @@ class Food:
         }
 
 class GameData:
-    def __init__(self):
+    def __init__(self, heads_directory):
+        self.directory = heads_directory
         self.players = {}
         self.foods = [Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)) for _ in range(0,10)]
         self.lock = threading.Lock()
@@ -94,7 +133,8 @@ class GameData:
                     if dist < 200:
                         not_valid = True
                         break
-            self.players[player_id] = Player(player_id, username, x, y)
+            body_color, head_image_path = load_random_snake_head(self.directory)
+            self.players[player_id] = Player(player_id, username, x, y, head_image_path, body_color)  
 
     def remove_player(self, player_id):
         with self.lock:
@@ -265,13 +305,15 @@ class ServerThread(threading.Thread):
 
 def main():
 
-    game_data = GameData()
+    image_directory = "media/AccelitherHeads"
+    game_data = GameData(heads_directory=image_directory)
 
     server = TCPConnection(HOST, PORT, host=True)
     server.setMaxClients(5)
 
     while server.isAlive():
         client_index = server.acceptNewClient()
+        print("hi")
         if client_index is not None:
             server_thread = ServerThread(server, client_index, game_data)
             server_thread.start()
@@ -279,4 +321,7 @@ def main():
         clock.tick(60)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"Error occurred: {e}")

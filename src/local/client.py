@@ -4,9 +4,12 @@ import de10 as acc
 from netcode.TCPConnection import TCPConnection
 import time
 import math
+import os
+import sys
+import random
 
 # Server IP address and port
-HOST = '3.9.29.103'
+HOST = '18.133.242.233'
 PORT = 12000
 
 # Screen dimensions
@@ -28,22 +31,51 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
 pygame.display.set_caption('Snake Game Client')
 
-sounds = { "omnom" : pygame.mixer.Sound("eat_sound.mp3"),
-           "oopsydaisy" : pygame.mixer.Sound("collision_sound.mp3"),
-           "womp_womp" : pygame.mixer.Sound("womp-womp.mp3")
+sounds = { "omnom" : pygame.mixer.Sound("media/Sounds/eat_sound.mp3"),
+           "oopsydaisy" : pygame.mixer.Sound("media/Sounds/collision_sound.mp3"),
+           "womp_womp" : pygame.mixer.Sound("media/Sounds/womp-womp.mp3")
          }
 
-import pygame
-import sys
+# -----------------------------------------------Login Screen-----------------------------------------------------------#
 
-def input_username():
+def load_frames(directory, screen):
+    frames = []
+    for filename in sorted(os.listdir(directory)):
+        if filename.endswith('.jpg'):
+            path = os.path.join(directory, filename)
+            frame = pygame.image.load(path).convert()
+            frame = pygame.transform.scale(frame, screen.get_size())  # Scale frame to fit screen
+            frames.append(frame)
+    return frames
+
+def play_frames(frames, screen):
+    clock = pygame.time.Clock()
+    for frame in frames:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        screen.blit(frame, (0, 0))
+        pygame.display.flip()
+        clock.tick(30)  # Control frame rate
+    return frames[-1]  # Return the last frame
+
+def input_username(screen, last_frame=None):
 
     # Set up fonts
     font = pygame.font.SysFont(None, 32)
 
     username = ""
-    input_rect = pygame.Rect(100, 100, 200, 50)
+
+    box_width = 400
+    box_height = 50
+    x_position = (SCREEN_X - box_width) // 2
+    y_position = (SCREEN_Y - box_height) // 1.5
+    input_rect = pygame.Rect(x_position, y_position, box_width, box_height)
     active = False
+
+    input_box_color = (255, 255, 255)  
+    text_color = (255, 255, 255) 
 
     while True:
         for event in pygame.event.get():
@@ -64,13 +96,27 @@ def input_username():
                     else:
                         username += event.unicode
 
-        screen.fill((255, 255, 255))
-        pygame.draw.rect(screen, (0, 0, 0), input_rect, 2)
+        if last_frame is not None:
+            screen.blit(last_frame, (0, 0))
+        else:
+            screen.fill((0, 0, 0))
+        
+        # Draw input box
+        pygame.draw.rect(screen, input_box_color, input_rect, 2)  # Change border color here
+        
+        # Render and draw username text
+        text_surface = font.render(username, True, text_color)  # Adjust text color here
+        text_width, text_height = font.size(username)
+        text_x = input_rect.x + (input_rect.width - text_width) // 2
+        text_y = input_rect.y + (input_rect.height - text_height) // 2
 
-        text_surface = font.render(username, True, (0, 0, 0))
-        screen.blit(text_surface, (input_rect.x + 5, input_rect.y + 5))
-
+        screen.blit(text_surface, (text_x, text_y))
+        
         pygame.display.flip()
+
+
+# ----------------------------------------------------------------------------------------------------------------#
+
 
 def get_angle(x, y):
     
@@ -146,21 +192,64 @@ def blitRotate(surf, image, origin, pivot, angle):
     rotated_image_rect = rotated_image.get_rect(center = rotated_image_center)
     surf.blit(rotated_image, rotated_image_rect)
 
+# -----------------------------------------------Draw Background-----------------------------------------------------------#
+
+
+
+    
+def draw_grid_background(screen, grid_color=(56, 56, 56), grid_spacing=20):
+   
+    screen_width, screen_height = screen.get_size()
+    
+    # Draw vertical lines
+    for x in range(0, screen_width, grid_spacing):
+        pygame.draw.line(screen, grid_color, (x, 0), (x, screen_height))
+    
+    # Draw horizontal lines
+    for y in range(0, screen_height, grid_spacing):
+        pygame.draw.line(screen, grid_color, (0, y), (screen_width, y))
+
+# -----------------------------------------------Load Player Image-----------------------------------------------------------#
+image_cache = {}  # Cache to store loaded images
+
+def load_player_image(image_path):
+    if image_path in image_cache:
+        return image_cache[image_path]
+
+    try:
+        image = pygame.image.load(image_path).convert_alpha()
+        image_cache[image_path] = image  
+        return image
+    except pygame.error:
+        print(f"Error loading image: {image_path}")
+        # Return a default image if the desired one fails to load
+        return pygame.Surface((HEAD_RAD*2, HEAD_RAD*2), pygame.SRCALPHA)
+
+# -------------------------------------------------------Render Game----------------------------------------------------------------#
+
+
+
+
 # Function to render game state
 def render_game_state(screen, game_state):
     # Clear the screen
     screen.fill((0, 0, 0))
-    snake_head = pygame.image.load('snake.svg')
+    draw_grid_background(screen)
     
+
     for player_data in game_state['players']:
+        snake_head_path = player_data['head_image_path']
+        snake_head = load_player_image(snake_head_path) 
         username = player_data['username']
         dirX = player_data['dirX']
         dirY = player_data['dirY']
+        body_color = player_data['body_color']
+    
         for index, segment in enumerate(reversed(player_data['body'])):
             if index == len(player_data['body'])-1:  # Draw the head of the snake
                 blitRotate(screen, snake_head, segment, (21.3,20), get_angle(dirX,dirY))
             else:
-                pygame.draw.circle(screen, (160, 196, 50), segment, SNAKE_RAD)
+                pygame.draw.circle(screen, body_color, segment, SNAKE_RAD)
         font = pygame.font.SysFont(None, 24)
         text_surface = font.render(username, True, (255, 255, 255))
         headx = player_data['body'][0][0]
@@ -182,10 +271,16 @@ def render_game_state(screen, game_state):
     # Update the display
     pygame.display.flip()
 
+# -----------------------------------------------Main-----------------------------------------------------------#
+
+
 # Main function to run the client
 def main():
 
-    username = input_username()
+    frames_directory = 'media/AccelitherLogin' 
+    frames = load_frames(frames_directory, screen) # comment out to quickly login
+    last_frame = play_frames(frames, screen) # comment out to quickly login
+    username = input_username(screen, last_frame) # remove screen argument to quickly login 
     # Initialize the TCP connection
     connection = TCPConnection(HOST, PORT)
     not_break = True
