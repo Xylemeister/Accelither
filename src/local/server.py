@@ -9,7 +9,7 @@ import sys
 from database import update_high_score, register_player, get_top_three_scores
 
 #select a server port
-HOST = '172.31.47.116'
+HOST = '172.31.44.2'
 PORT = 12000
 
 ARENA_X = 1000
@@ -77,7 +77,7 @@ class Food:
 class GameData:
     def __init__(self):
         self.players = {}
-        self.foods = [Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)) for _ in range(0,10)]
+        self.foods = [Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)) for _ in range(0,20)]
         self.lock = threading.Lock()
 
     def add_player(self, player_id, username):
@@ -151,9 +151,13 @@ class GameData:
                     else:
                         all_player_bodies.append((segment[0],segment[1],SNAKE_RAD))
         if check_collision_circle_list(player_head_circle, all_player_bodies):
+            for body in player.body:
+                self.foods.append(Food(body[0], body[1]))
             print("player colision " + str(player_id))
             return True
         if (player.x < SNAKE_RAD or player.x > ARENA_X-SNAKE_RAD or player.y < SNAKE_RAD or player.y > ARENA_Y-SNAKE_RAD):
+            for body in player.body:
+                self.foods.append(Food(body[0], body[1]))
             print("wall collision " + str(player_id))
             return True
         return False
@@ -193,7 +197,8 @@ class GameData:
                 with self.lock:
                     self.foods.pop(index)
                     player.score += 1
-                self.generate_food()
+                if (len(self.foods) < 20):
+                    self.generate_food()
                 return True
         self.reduce_player_body(player_id)
         return False
@@ -280,7 +285,7 @@ def main():
 
     server = TCPConnection(HOST, PORT, host=True)
     server.setMaxClients(5)
-
+    print("Help")
     while server.isAlive():
         client_index = server.acceptNewClient()
         if client_index is not None:

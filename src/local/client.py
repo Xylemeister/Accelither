@@ -6,7 +6,7 @@ import time
 import math
 
 # Server IP address and port
-HOST = '3.9.29.103'
+HOST = '13.41.195.22'
 PORT = 12000
 
 # Screen dimensions
