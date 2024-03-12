@@ -46,15 +46,6 @@ def load_random_snake_head(heads_directory):
     majority_color = get_majority_color(file_path)
     return majority_color, file_path
 
-def initialize_player_heads(heads_directory, players):
-    # Initialize or update player data with head images and majority colors
-    for player in players:
-        if 'head_image_path' not in player or 'body_color' not in player:  # Check if already initialized
-            majority_color, head_image_path = load_random_snake_head(heads_directory)
-            player['head_image_path'] = head_image_path  
-            player['body_color'] = majority_color
-    return players
-
 # ---------------------------------------------------------------------------------------------------------------------------------#
 
 
@@ -134,6 +125,8 @@ class GameData:
                         not_valid = True
                         break
             body_color, head_image_path = load_random_snake_head(self.directory)
+            self.players[player_id].head_image_path = head_image_path
+            self.players[player_id].body_color = body_color
             self.players[player_id] = Player(player_id, username, x, y, head_image_path, body_color)  
 
     def remove_player(self, player_id):
@@ -313,7 +306,6 @@ def main():
 
     while server.isAlive():
         client_index = server.acceptNewClient()
-        print("hi")
         if client_index is not None:
             server_thread = ServerThread(server, client_index, game_data)
             server_thread.start()

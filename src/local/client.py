@@ -9,7 +9,7 @@ import sys
 import random
 
 # Server IP address and port
-HOST = '18.133.242.233'
+HOST = '3.9.29.103'
 PORT = 12000
 
 # Screen dimensions
