@@ -165,11 +165,22 @@ class GameData:
         for player in return_dict['players']:
             player['x'] = round(player['x'] - centerx+SCREEN_X//2,1)
             player['y'] = round(player['y'] - centery+SCREEN_Y//2,1)
-            player['body'] = [(round(x-centerx+SCREEN_X//2,1), round(y-centery+SCREEN_Y//2,1)) for x,y in player['body']]
+            player['body'] = [(round(x-centerx+SCREEN_X//2,1), round(y-centery+SCREEN_Y//2,1)) for x,y in player['body'] if x > centerx - SCREEN_X//2 - HEAD_RAD and x < centerx + SCREEN_X//2 + HEAD_RAD and y < centery + SCREEN_Y//2 + HEAD_RAD and y > centery - SCREEN_Y//2 - HEAD_RAD]
+        tmp_array = []
+        for player in return_dict['players']:
+            if len(player['body']) != 0:
+                tmp_array.append(player)
+        return_dict['players'] = tmp_array
 
+        tmp_array = []
         for food in return_dict['foods']:
-            food['x'] = round(food['x'] - centerx+SCREEN_X//2,1)
-            food['y'] = round(food['y'] - centery+SCREEN_Y//2,1)
+            x = food['x']
+            y = food['y']
+            if x > centerx - SCREEN_X//2 - HEAD_RAD and x < centerx + SCREEN_X//2 + HEAD_RAD and y < centery + SCREEN_Y//2 + HEAD_RAD and y > centery - SCREEN_Y//2 - HEAD_RAD:
+                food['x'] = round(food['x'] - centerx+SCREEN_X//2,1)
+                food['y'] = round(food['y'] - centery+SCREEN_Y//2,1)
+                tmp_array.append(food)
+        return_dict['foods'] = tmp_array
         return return_dict, (round(SCREEN_X//2-centerx,1), round(SCREEN_Y//2-centery,1))
 
     

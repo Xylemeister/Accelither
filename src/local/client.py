@@ -188,8 +188,20 @@ def main():
     username = input_username()
     # Initialize the TCP connection
     connection = TCPConnection(HOST, PORT)
-    not_break = True
 
+    not_break = True
+    
+    msg_init = {
+        'username' : username,
+        'x' : acc.Input.getX(),
+        'y' : acc.Input.getY(),
+        'speed': BASE_SPEED+acc.Input.getButton(0)*2-acc.Input.getButton(1)*2}
+
+    msg_json_init = json.dumps(msg_init)
+        
+    #send the message to the udp server
+    connection.send(msg_json_init.encode())
+    
     # Main loop
     while not_break:
         msg = {
@@ -204,7 +216,28 @@ def main():
         connection.send(msg_json.encode())
 
         # Receive game state from the server
-        game_state_json = connection.recv(timeout=0.3)
+        
+        """
+        game_state_json = ""
+        while(1):
+            print("receiving")
+            game_state_json_chunk = connection.recv(timeout=0.02).decode()
+            if not game_state_json_chunk: 
+                break
+            else: 
+                game_state_json += game_state_json_chunk
+        """
+
+        game_state_json = connection.recv(timeout=0.1).decode()
+        curr = 0
+        for ind,char in enumerate(game_state_json):
+            if char == '{':
+                curr+=1
+            elif char == '}':
+                curr-=1
+            if curr == 0:
+                game_state_json = game_state_json[:ind+1]
+                
         if game_state_json:
             try:
                 game_state = json.loads(game_state_json)
