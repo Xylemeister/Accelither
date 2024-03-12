@@ -2,7 +2,7 @@ import boto3
 from botocore.exceptions import ClientError
 import logging
 
-MY_REGION_NAME = 'eu-north-1'
+MY_REGION_NAME = 'eu-west-2'
 
 def update_high_score(player_id, new_score, dynamodb=None):
     """Update the high score for a player if the new score is higher."""

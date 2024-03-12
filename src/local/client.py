@@ -6,7 +6,7 @@ import time
 import math
 
 # Server IP address and port
-HOST = '13.48.57.52'
+HOST = '3.9.29.103'
 PORT = 12000
 
 # Screen dimensions
@@ -18,7 +18,7 @@ SCORE_COLOUR = (255, 0, 247)
 FOOD_RAD = 10
 SNAKE_RAD = 10
 HEAD_RAD = 15
-speed = 5
+BASE_SPEED = 3
 
 # Initialize pygame
 pygame.init()
@@ -109,14 +109,14 @@ def gamover(score, connection):
     show_score(0, (252,3,3), 'Comic Sans', 20, score)
 
     # Display leaderboard data
-    font = pygame.font.SysFont(None, 32)
-    y_offset = 50
+    font = pygame.font.SysFont('Times New Roman', 32)
+    y_offset = SCREEN_Y/2
 
     leaderboard_data_json = {}
     not_valid = True
     while not_valid:
         try: 
-            leaderboard_data = connection.recv(timeout=0.1)
+            leaderboard_data = connection.recv(timeout=0.5)
             leaderboard_data_json = json.loads(leaderboard_data.decode())
             print(leaderboard_data_json[0]['HighScore'])
             not_valid = False
@@ -124,11 +124,11 @@ def gamover(score, connection):
             continue
 
     for rank, score_dict in enumerate(leaderboard_data_json, start=1):
-        rank_text = font.render(str(rank), True, (255, 255, 255))
+        rank_text = font.render(str(rank), True, (252,3,3))
         screen.blit(rank_text, (50, y_offset))
-        username_text = font.render(score_dict['PlayerId'], True, (255, 255, 255))
+        username_text = font.render(score_dict['PlayerId'], True, (252,3,3))
         screen.blit(username_text, (100, y_offset))
-        score_text = font.render(str(score_dict['HighScore']), True, (255, 255, 255))
+        score_text = font.render(str(score_dict['HighScore']), True, (252,3,3))
         screen.blit(score_text, (300, y_offset))
         y_offset += 30    
 
@@ -196,7 +196,7 @@ def main():
         'username' : username,
         'x' : acc.Input.getX(),
         'y' : acc.Input.getY(),
-        'speed': speed+acc.Input.getButton(0)*3-acc.Input.getButton(1)*3}
+        'speed': BASE_SPEED+acc.Input.getButton(0)*2-acc.Input.getButton(1)*2}
 
         msg_json = json.dumps(msg)
         
@@ -204,7 +204,7 @@ def main():
         connection.send(msg_json.encode())
 
         # Receive game state from the server
-        game_state_json = connection.recv(timeout=0.1)
+        game_state_json = connection.recv(timeout=0.3)
         if game_state_json:
             try:
                 game_state = json.loads(game_state_json)
@@ -213,7 +213,7 @@ def main():
                 if not game_state['alive']:
                     gamover(score, connection)
                     connection.close()
-                    not_break = False
+                    sys.exit()
             except:
                 print(game_state_json)
                 continue

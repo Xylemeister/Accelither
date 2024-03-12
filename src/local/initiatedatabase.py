@@ -2,7 +2,7 @@ import boto3
 from botocore.exceptions import ClientError
 import logging
 
-def create_dynamodb_resource(region_name='eu-north-1'):
+def create_dynamodb_resource(region_name='eu-west-2'):
     """Create a DynamoDB resource."""
     try:
         dynamodb = boto3.resource('dynamodb', region_name=region_name)

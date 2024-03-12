@@ -9,7 +9,7 @@ import sys
 from database import update_high_score, register_player, get_top_three_scores
 
 #select a server port
-HOST = '172.31.47.170'
+HOST = '172.31.47.116'
 PORT = 12000
 
 ARENA_X = 1000
@@ -22,7 +22,6 @@ FOOD_RAD = 10
 SNAKE_RAD = 10
 HEAD_RAD = 15
 
-pygame.init()
 clock = pygame.time.Clock()
 
 def check_collision_circle(circle1, circle2):
@@ -50,7 +49,7 @@ class Player:
         self.score = 0
         self.dirX = 0
         self.dirY = 0
-        self.speed = 5
+        self.speed = 3
 
     def to_dict(self):
         return {
