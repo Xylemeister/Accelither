@@ -4,9 +4,10 @@ import de10 as acc
 from netcode.TCPConnection import TCPConnection
 import time
 import math
+import game_pb2
 
 # Server IP address and port
-HOST = '13.41.195.22'
+HOST = '18.130.236.221'
 PORT = 12000
 
 # Screen dimensions
@@ -35,6 +36,38 @@ sounds = { "omnom" : pygame.mixer.Sound("eat_sound.mp3"),
 
 import pygame
 import sys
+
+def protobuf_to_dict(protobuf_message):
+    result = {
+        "players": [],
+        "foods": [],
+        "alive": protobuf_message.alive,
+        "score": protobuf_message.score,
+        "food_eaten": protobuf_message.food_eaten,
+        "boundary_box": tuple(protobuf_message.boundary_box),
+    }
+    
+    # Convert players
+    for player in protobuf_message.players:
+        player_data = {
+            "player_id": player.player_id,
+            "username": player.username,
+            "x": player.position.x,
+            "y": player.position.y,
+            "score": player.score,
+            "dirX": player.dirX,
+            "dirY": player.dirY,
+            "body": [(coord.x, coord.y) for coord in player.body],
+        }
+        result["players"].append(player_data)
+    
+    # Convert foods
+    for food in protobuf_message.foods:
+        food_data = {"x": food.position.x, "y": food.position.y}
+        result["foods"].append(food_data)
+    
+    return result
+
 
 def input_username():
 
@@ -184,7 +217,6 @@ def render_game_state(screen, game_state):
 
 # Main function to run the client
 def main():
-
     username = input_username()
     # Initialize the TCP connection
     connection = TCPConnection(HOST, PORT)
@@ -201,6 +233,7 @@ def main():
         
     #send the message to the udp server
     connection.send(msg_json_init.encode())
+    time.sleep(0.02)
     
     # Main loop
     while not_break:
@@ -217,18 +250,10 @@ def main():
 
         # Receive game state from the server
         
-        """
-        game_state_json = ""
-        while(1):
-            print("receiving")
-            game_state_json_chunk = connection.recv(timeout=0.02).decode()
-            if not game_state_json_chunk: 
-                break
-            else: 
-                game_state_json += game_state_json_chunk
-        """
-
-        game_state_json = connection.recv(timeout=0.1).decode()
+        game_state_json = connection.recv(timeout=0.1)
+        received_game_data = game_pb2.GameData()
+        received_game_data.ParseFromString(game_state_json)
+        '''
         curr = 0
         for ind,char in enumerate(game_state_json):
             if char == '{':
@@ -237,10 +262,11 @@ def main():
                 curr-=1
             if curr == 0:
                 game_state_json = game_state_json[:ind+1]
-                
-        if game_state_json:
+        '''
+        if received_game_data:
             try:
-                game_state = json.loads(game_state_json)
+                #game_state = json.loads(game_state_json)
+                game_state = protobuf_to_dict(received_game_data)
                 score = game_state['score']
                 render_game_state(screen, game_state)
                 if not game_state['alive']:

@@ -7,9 +7,10 @@ import time
 import math
 import sys
 from database import update_high_score, register_player, get_top_three_scores
+import game_pb2
 
 #select a server port
-HOST = '172.31.44.2'
+HOST = '172.31.47.116'
 PORT = 12000
 
 ARENA_X = 1000
@@ -23,6 +24,39 @@ SNAKE_RAD = 10
 HEAD_RAD = 15
 
 clock = pygame.time.Clock()
+
+def dict_to_protobuf(data):
+    game_data = game_pb2.GameData()
+    
+    # Convert players
+    for player_data in data["players"]:
+        player = game_data.players.add()
+        player.player_id = player_data["player_id"]
+        player.username = player_data["username"]
+        player.position.x = player_data["x"]
+        player.position.y = player_data["y"]
+        player.score = player_data["score"]
+        player.dirX = player_data["dirX"]
+        player.dirY = player_data["dirY"]
+        for body_part in player_data["body"]:
+            body_coord = player.body.add()
+            body_coord.x = body_part[0]
+            body_coord.y = body_part[1]
+    
+    # Convert foods
+    for food_data in data["foods"]:
+        food = game_data.foods.add()
+        food.position.x = food_data["x"]
+        food.position.y = food_data["y"]
+    
+    # Set game state
+    game_data.alive = data["alive"]
+    game_data.score = data["score"]
+    game_data.food_eaten = data["food_eaten"]
+    game_data.boundary_box[:] = data["boundary_box"]
+    
+    return game_data
+
 
 def check_collision_circle(circle1, circle2):
     diffx = circle1[0] - circle2[0]
@@ -267,8 +301,10 @@ class ServerThread(threading.Thread):
                         game_state['score'] = self.game_data.players[self.player_id].score
                         game_state['food_eaten'] = eaten
                         game_state['boundary_box'] = boundary_box
-                        msg_out = json.dumps(game_state)
-                        self.connection.send(msg_out.encode(), self.player_id)
+                        #msg_out = json.dumps(game_state)
+                        msg_out = dict_to_protobuf(game_state)
+                        print(msg_out.SerializeToString())
+                        self.connection.send(msg_out.SerializeToString(), self.player_id)
                         print("sent")
                     except:
                         print("failed")
@@ -285,7 +321,6 @@ def main():
 
     server = TCPConnection(HOST, PORT, host=True)
     server.setMaxClients(5)
-    print("Help")
     while server.isAlive():
         client_index = server.acceptNewClient()
         if client_index is not None:
