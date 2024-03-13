@@ -25,18 +25,18 @@ SNAKE_RAD = 10
 HEAD_RAD = 15
 BASE_SPEED = 3
 
+STATE_RUNNING = 0
+STATE_GAME_OVER = 1
+STATE_RESTART = 2
+STATE_QUIT = 3
 
-# Initialize pygame
+
 pygame.init()
-
 clock = pygame.time.Clock()
 
 # Initialize the screen
 screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
 pygame.display.set_caption('Snake Game Client')
-
-
-
 
 sounds = { "omnom" : pygame.mixer.Sound("media/sounds/sound_effects/eat_sound.mp3"),
            "oopsydaisy" : pygame.mixer.Sound("media/sounds/sound_effects/collision_sound.mp3"),
@@ -185,7 +185,14 @@ def play_next_song(songs, current_song_index):
     pygame.mixer.music.play()
 # ----------------------------------------------------------------------------------------------------------------#
 
-
+def blitRotate(surf, image, origin, pivot, angle):
+    image_rect = image.get_rect(topleft = (origin[0] - pivot[0], origin[1]-pivot[1]))
+    offset_center_to_pivot = pygame.math.Vector2(origin) - image_rect.center
+    rotated_offset = offset_center_to_pivot.rotate(-angle)
+    rotated_image_center = (origin[0] - rotated_offset.x, origin[1] - rotated_offset.y)
+    rotated_image = pygame.transform.rotozoom(image, 180 + angle, 0.05)
+    rotated_image_rect = rotated_image.get_rect(center = rotated_image_center)
+    surf.blit(rotated_image, rotated_image_rect)
 
 def get_angle(x, y):
     
@@ -212,6 +219,8 @@ def show_score(choice, colour, font, size, score):
     else:
         score_rect.midtop = (SCREEN_X/2, SCREEN_Y/1.25)
     screen.blit(score_surface, score_rect)
+
+# ------------------------------------------------GameOverLog---------------------------------------------------------------#
 
 def gamover(score, connection):
     print("enter gameover")
@@ -247,24 +256,46 @@ def gamover(score, connection):
         score_text = font.render(str(score_dict['HighScore']), True, (252,3,3))
         screen.blit(score_text, (300, y_offset))
         y_offset += 30    
-
+    
     pygame.display.flip()
     sounds["womp_womp"].play()
-    time.sleep(5)
-    pygame.quit()
+    time.sleep(2)
 
-def blitRotate(surf, image, origin, pivot, angle):
-    image_rect = image.get_rect(topleft = (origin[0] - pivot[0], origin[1]-pivot[1]))
-    offset_center_to_pivot = pygame.math.Vector2(origin) - image_rect.center
-    rotated_offset = offset_center_to_pivot.rotate(-angle)
-    rotated_image_center = (origin[0] - rotated_offset.x, origin[1] - rotated_offset.y)
-    rotated_image = pygame.transform.rotozoom(image, 180 + angle, 0.05)
-    rotated_image_rect = rotated_image.get_rect(center = rotated_image_center)
-    surf.blit(rotated_image, rotated_image_rect)
+    button_width = 200
+    button_height = 50
+    margin = 10  # Margin from the screen edges
+
+    restart_button = pygame.Rect(SCREEN_X - button_width - margin, SCREEN_Y - button_height - margin, button_width, button_height)
+    quit_button = pygame.Rect(margin, SCREEN_Y - button_height - margin, button_width, button_height)
+
+    pygame.draw.rect(screen, (0, 255, 0), restart_button)  # Draw restart button green
+    pygame.draw.rect(screen, (255, 0, 0), quit_button)  # Draw quit button red
+
+    font = pygame.font.SysFont(None, 36)
+    blit_text_center(screen, 'Restart', font, restart_button)
+    blit_text_center(screen, 'Quit', font, quit_button)
+    pygame.display.flip()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if restart_button.collidepoint(mouse_pos):
+                    return 'restart'
+                elif quit_button.collidepoint(mouse_pos):
+                    return 'quit'
+
+
+    
+    # pygame.quit()
+
 
 # -----------------------------------------------Drawing -----------------------------------------------------------#
 
-
+def blit_text_center(screen, text, font, rect):
+    text_surf = font.render(text, True, (255, 255, 255))
+    text_rect = text_surf.get_rect(center=rect.center)
+    screen.blit(text_surf, text_rect)
 
     
 def draw_grid_background(screen, grid_color=(56, 56, 56), grid_spacing=20):
@@ -420,13 +451,15 @@ food_id_to_image = {}
 
 # Main function to run the client
 def main():
-
+    
+ ######## Initialisation ########
+    
     intro_music()
     frames_directory = 'media/AccelitherLogin' 
-    #frames = load_frames(frames_directory, screen) # comment out to quickly login
-    #last_frame = play_frames(frames, screen) # comment out to quickly login
+    frames = load_frames(frames_directory, screen) # comment out to quickly login
+    last_frame = play_frames(frames, screen) # comment out to quickly login
     load_player_images()
-    username = input_username(screen)#, last_frame) # remove screen argument to quickly login 
+    username = input_username(screen, last_frame) # remove screen argument to quickly login 
     pygame.mixer.music.stop()
     
     # Initialize the TCP connection
@@ -451,61 +484,90 @@ def main():
 
     time.sleep(1)
 
+
+    state = STATE_RUNNING
+
     # Main loop
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == MUSIC_END:
-                # When one song ends, play the next
-                current_song_index[0] += 1 
-                play_next_song(songs, current_song_index[0])
+        if state == STATE_RUNNING:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    state = STATE_QUIT
+                elif event.type == MUSIC_END:
+                    # When one song ends, play the next
+                    current_song_index[0] += 1 
+                    play_next_song(songs, current_song_index[0])
 
-        msg = {
-        'username' : username,
-        'x' : acc.Input.getX(),
-        'y' : acc.Input.getY(),
-        'speed': BASE_SPEED+acc.Input.getButton(0)*2-acc.Input.getButton(1)*2}
+            msg = {
+            'username' : username,
+            'x' : acc.Input.getX(),
+            'y' : acc.Input.getY(),
+            'speed': BASE_SPEED+acc.Input.getButton(0)*2-acc.Input.getButton(1)*2}
 
-        msg_json = json.dumps(msg)
-        
-        #send the message to the udp server
-        connection.send(msg_json.encode())
+            msg_json = json.dumps(msg)
+            
+            #send the message to the udp server
+            connection.send(msg_json.encode())
 
-        # Receive game state from the server
-        
-        game_state_json = connection.recv(timeout=0.1)
-        try:
-            received_game_data = game_pb2.GameData()
-            received_game_data.ParseFromString(game_state_json)
-        except:
-            continue
-        '''
-        curr = 0
-        for ind,char in enumerate(game_state_json):
-            if char == '{':
-                curr+=1
-            elif char == '}':
-                curr-=1
-            if curr == 0:
-                game_state_json = game_state_json[:ind+1]
-        '''
-        if received_game_data:
+            # Receive game state from the server
+            
+            game_state_json = connection.recv(timeout=0.1)
             try:
-                #game_state = json.loads(game_state_json)
-                game_state = protobuf_to_dict(received_game_data)
-                score = game_state['score']
-                render_game_state(screen, game_state)
-                if not game_state['alive']:
-                    gamover(score, connection)
-                    connection.close()
-                    sys.exit()
+                received_game_data = game_pb2.GameData()
+                received_game_data.ParseFromString(game_state_json)
             except:
-                print(game_state_json)
                 continue
-        # Tick the clock
+            '''
+            curr = 0
+            for ind,char in enumerate(game_state_json):
+                if char == '{':
+                    curr+=1
+                elif char == '}':
+                    curr-=1
+                if curr == 0:
+                    game_state_json = game_state_json[:ind+1]
+            '''
+            if received_game_data:
+                try:
+                    #game_state = json.loads(game_state_json)
+                    game_state = protobuf_to_dict(received_game_data)
+                    score = game_state['score']
+                    render_game_state(screen, game_state)
+                    if not game_state['alive']:
+                        state = STATE_GAME_OVER
+                        
+                except:
+                    print(game_state_json)
+                    continue
+            
+            
+        elif state == STATE_GAME_OVER:
+            player_choice = gamover(score, connection)  # Use your updated gamover function here
+            #connection.close()
+            if player_choice == 'quit':
+                state = STATE_QUIT
+            elif player_choice == 'restart':
+                state = STATE_RESTART
+
+        elif state == STATE_RESTART:
+            # Reset game state or reinitialize game components
+            pygame.mixer.music.stop()
+            # Possibly reinitialize connection or confirm it's in a good state
+            # Reset game data (score, player position, etc.)
+            # Switch back to the running state
+            main()
+            #state = STATE_RUNNING
+
+
+        elif state == STATE_QUIT:
+            #connection.close()
+            pygame.quit()
+            sys.exit()
+        
+
+        #pygame.display.flip()
         clock.tick(60)
+        
 
 if __name__ == "__main__":
     main()
