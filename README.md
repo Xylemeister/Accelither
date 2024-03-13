@@ -29,7 +29,7 @@ This repository contains an implementation of slither.io controlled via fpga, cr
 - Select start to program your FPGA
 - Back in the top ribbon under tools again select Nios II software build tools for eclipse (Quartus 18.1) 
 - In Nios II eclipse right click on the navigator and import both the nios_code and nios_code_bsp folders (Only required once) 
-- Right click on whatever you have named the nios_code folder and under run as select
+- Right click on whatever you have named the nios_code folder and under `run as` select: `3. run as nios II hardware`
 - In the project name dropdown in the pop up window select the name of the project again (whatever you named your nios_code) then select apply and run
 - Close the nios II terminal
 -  Open a terminal window (PowerShell on Windows) and execute Nios II Command Shell.bat in Quartus installation directory.
