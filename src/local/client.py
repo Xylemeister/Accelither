@@ -66,12 +66,14 @@ def protobuf_to_dict(protobuf_message):
             "dirX": player.dirX,
             "dirY": player.dirY,
             "body": [(coord.x, coord.y) for coord in player.body],
+            "head_image_path" : player.head_image_path,
+            "body_color" : tuple(player.body_color)
         }
         result["players"].append(player_data)
     
     # Convert foods
     for food in protobuf_message.foods:
-        food_data = {"x": food.position.x, "y": food.position.y}
+        food_data = {"x": food.position.x, "y": food.position.y, "id": food.id }
         result["foods"].append(food_data)
     
     return result
@@ -377,7 +379,7 @@ def render_game_state(screen, game_state):
 
                 
         font = pygame.font.SysFont(None, 24)
-        text_surface = font.render(username, True, (255, 255, 255))
+        text_surface = font.render(username, True, complement_color)
         headx = player_data['body'][0][0]
         heady = player_data['body'][0][1]
         text_rect = text_surface.get_rect(center=(headx, heady-30))
@@ -416,10 +418,10 @@ def main():
 
     intro_music()
     frames_directory = 'media/AccelitherLogin' 
-    frames = load_frames(frames_directory, screen) # comment out to quickly login
-    last_frame = play_frames(frames, screen) # comment out to quickly login
+    #frames = load_frames(frames_directory, screen) # comment out to quickly login
+    #last_frame = play_frames(frames, screen) # comment out to quickly login
     load_player_images()
-    username = input_username(screen, last_frame) # remove screen argument to quickly login 
+    username = input_username(screen)#, last_frame) # remove screen argument to quickly login 
     pygame.mixer.music.stop()
     
     # Initialize the TCP connection
@@ -441,6 +443,8 @@ def main():
     MUSIC_END = setup_music_end_event()
     play_next_song(songs, current_song_index[0])
     
+
+    time.sleep(1)
 
     # Main loop
     while True:

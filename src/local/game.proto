@@ -13,10 +13,13 @@ message Player {
     int32 score = 5;
     float dirX = 6;
     float dirY = 7;
+    string head_image_path = 8;
+    repeated int32 body_color = 9;
 }
 
 message Food {
     Coordinate position = 1;
+    string id = 2;
 }
 
 message GameData {

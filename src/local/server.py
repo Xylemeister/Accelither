@@ -49,12 +49,15 @@ def dict_to_protobuf(data):
             body_coord = player.body.add()
             body_coord.x = body_part[0]
             body_coord.y = body_part[1]
+        player.head_image_path = player_data["head_image_path"]
+        player.body_color[:] = player_data["body_color"]
     
     # Convert foods
     for food_data in data["foods"]:
         food = game_data.foods.add()
         food.position.x = food_data["x"]
         food.position.y = food_data["y"]
+        food.id = food_data["id"]
     
     # Set game state
     game_data.alive = data["alive"]
@@ -168,6 +171,7 @@ class GameData:
 
     def add_player(self, player_id, username):
         print("added player")
+
         with self.lock:
             not_valid = True
             x,y = 0,0
@@ -311,17 +315,16 @@ class ServerThread(threading.Thread):
             client_input = self.connection.recv(self.player_id)
             if client_input:
                 json_msg = client_input.decode()
-                try: 
-                    msg = json.loads(json_msg)
-                    username = msg["username"]
-                    if username == "":
-                        username = "Guest"+str(self.player_id)
-                    no_username = False
-                    self.game_data.add_player(player_id, username)
-                    register_player(username)
-                    self.username = username
-                except:
-                    continue
+                msg = json.loads(json_msg)
+                username = msg["username"]
+                if username == "":
+                    username = "Guest"+str(self.player_id)
+                no_username = False
+                self.game_data.add_player(player_id, username)
+                register_player(username)
+                self.username = username
+                # except:
+                #     continue
 
     def run(self):
         while self.connection.isAlive(self.player_id):
@@ -340,7 +343,7 @@ class ServerThread(threading.Thread):
                 client_input = self.connection.recv(self.player_id)
                 if client_input != b"":
                     json_msg = client_input.decode()
-                    try: 
+                    try:
                         msg = json.loads(json_msg)
                         x = msg["x"]
                         y = msg["y"]
