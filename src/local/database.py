@@ -34,15 +34,15 @@ def update_high_score(player_id, new_score, dynamodb=None):
             return None
         
         
-def add_death(player_id, region_name='default-region'):
+def add_death(player_id, region_name=MY_REGION_NAME):
     dynamodb = boto3.resource('dynamodb', region_name=region_name)
     table = dynamodb.Table('Leaderboard')
 
     try:
         response = table.update_item(
             Key={'PlayerId': player_id},
-            UpdateExpression="set Death= if_not_exists(Death, :start) + :increment",
-            ExpressionAttributeValues={':increment': 1, ':start': 0},
+            UpdateExpression="set Death = Death + :increment",
+            ExpressionAttributeValues={':increment': 1 },
             ReturnValues="UPDATED_NEW"
         )
         return response  
@@ -50,15 +50,15 @@ def add_death(player_id, region_name='default-region'):
         logging.error(e)
         return None
     
-def add_kill(player_id, region_name='default-region'):
+def add_kill(player_id, region_name=MY_REGION_NAME):
     dynamodb = boto3.resource('dynamodb', region_name=region_name)
     table = dynamodb.Table('Leaderboard')
 
     try:
         response = table.update_item(
             Key={'PlayerId': player_id},
-            UpdateExpression="set Kill= if_not_exists(Kill, :start) + :increment",
-            ExpressionAttributeValues={':increment': 1, ':start': 0},
+            UpdateExpression="set Kill= Kill + :increment",
+            ExpressionAttributeValues={':increment': 1 },
             ReturnValues="UPDATED_NEW"
         )
         return response  

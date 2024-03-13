@@ -11,7 +11,7 @@ import random
 import colorsys
 
 # Server IP address and port
-HOST = '18.169.52.248'
+HOST = '3.8.153.70'
 PORT = 12000
 
 # Screen dimensions
