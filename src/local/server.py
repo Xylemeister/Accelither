@@ -34,7 +34,6 @@ clock = pygame.time.Clock()
 
 # -------------------------------------------------------Get Random Snake----------------------------------------------------------------#
 
-
 def get_most_common_color(image_path):
     image = Image.open(image_path)
     if image.mode != 'RGBA':
@@ -49,9 +48,16 @@ def get_most_common_color(image_path):
     # Count colors
     colors = Counter(map(tuple, pixels))
 
-    colors = {color: count for color, count in colors.items() if color != (0, 0, 0)}
-    most_common_color = max(colors, key=colors.get) if colors else (0, 0, 0)
-    return tuple(map(int, most_common_color))
+    # Define a threshold for non-black colors
+    non_black_threshold = 50
+
+    # Filter out colors that are black or close to black
+    colors = {color: count for color, count in colors.items() if all(value > non_black_threshold for value in color)}
+
+    # Find the most common non-black color, defaulting to a placeholder if none are found
+    most_common_non_black_color = max(colors, key=colors.get) if colors else (255, 255, 255)  # Default to white if no non-black color is found
+
+    return tuple(map(int, most_common_non_black_color))
 
 
 def load_random_snake_head(heads_directory):

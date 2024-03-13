@@ -7,9 +7,10 @@ import math
 import os
 import sys
 import random
+import colorsys
 
 # Server IP address and port
-HOST = '13.41.223.102'
+HOST = '18.169.52.248'
 PORT = 12000
 
 # Screen dimensions
@@ -222,11 +223,11 @@ def blitRotate(surf, image, origin, pivot, angle):
     offset_center_to_pivot = pygame.math.Vector2(origin) - image_rect.center
     rotated_offset = offset_center_to_pivot.rotate(-angle)
     rotated_image_center = (origin[0] - rotated_offset.x, origin[1] - rotated_offset.y)
-    rotated_image = pygame.transform.rotozoom(image, 180 + angle, 0.1)
+    rotated_image = pygame.transform.rotozoom(image, 180 + angle, 0.05)
     rotated_image_rect = rotated_image.get_rect(center = rotated_image_center)
     surf.blit(rotated_image, rotated_image_rect)
 
-# -----------------------------------------------Draw Background-----------------------------------------------------------#
+# -----------------------------------------------Drawing -----------------------------------------------------------#
 
 
 
@@ -243,12 +244,44 @@ def draw_grid_background(screen, grid_color=(56, 56, 56), grid_spacing=20):
     for y in range(0, screen_height, grid_spacing):
         pygame.draw.line(screen, grid_color, (0, y), (screen_width, y))
 
+
+def draw_scaled_segment(screen, color, complement_color, position, radius):
+    # Draw the base circle
+    pygame.draw.circle(screen, color, position, radius)
+    
+    num_scales = 8  # Adjust the number of scales 
+    scale_radius = radius // num_scales * 2  # Radius of the scales
+    
+    # Adjusted the angle to make sure we cover the circle in a radial pattern
+    for angle in range(0, 360, 360 // num_scales):
+        angle_rad = math.radians(angle)  
+        for r in range(scale_radius, radius, scale_radius):  # Start at scale_radius to avoid center and go to the edge
+            scale_x = int(position[0] + r * math.cos(angle_rad))
+            scale_y = int(position[1] + r * math.sin(angle_rad))
+            
+            # Draw the scale if it's within the circle's boundary
+            dist_to_center = math.sqrt((scale_x - position[0]) ** 2 + (scale_y - position[1]) ** 2)
+            if dist_to_center + scale_radius / 2 <= radius:
+                pygame.draw.circle(screen, complement_color, (scale_x, scale_y), scale_radius // 2)
+
+
+def get_complementary_color(rgb):
+    r, g, b = [x / 255.0 for x in rgb]
+    
+    h, s, v = colorsys.rgb_to_hsv(r, g, b)
+    
+    h = (h + 0.5) % 1.0
+    
+    r, g, b = colorsys.hsv_to_rgb(h, s, v)
+    
+    return tuple(int(x * 255) for x in (r, g, b))
+
 # -----------------------------------------------Load Images-----------------------------------------------------------#
 image_cache = {}
 
 def load_player_images(directory="media/AccelitherHeads"):
     for filename in os.listdir(directory):
-        if filename.endswith('.png'):  # Assuming all images are PNGs, adjust if necessary
+        if filename.endswith('.png'):  # Assuming all images are PNGs
             path = os.path.join(directory, filename)
             try:
                 image = pygame.image.load(path).convert_alpha()
@@ -284,6 +317,7 @@ food_images_resized = load_and_resize_food_images('media/Food', (2 * FOOD_RAD, 2
 
 # -------------------------------------------------------Render Game----------------------------------------------------------------#
 
+
 # Function to render game state
 def render_game_state(screen, game_state):
     # Clear the screen
@@ -297,13 +331,18 @@ def render_game_state(screen, game_state):
         dirX = player_data['dirX']
         dirY = player_data['dirY']
         body_color = player_data['body_color']
+        complement_color = get_complementary_color(body_color)
         #print(body_color)
     
         for index, segment in enumerate(reversed(player_data['body'])):
             if index == len(player_data['body'])-1:  # Draw the head of the snake
-                blitRotate(screen, snake_head, segment, (250,250), get_angle(dirX,dirY))
+                blitRotate(screen, snake_head, segment, (256,256), get_angle(dirX,dirY))
             else:
-                pygame.draw.circle(screen, body_color, segment, SNAKE_RAD)
+                segment_pos = (int(segment[0]), int(segment[1]))
+                draw_scaled_segment(screen, body_color, complement_color, segment_pos, SNAKE_RAD)
+                #pygame.draw.circle(screen, body_color, segment, SNAKE_RAD)
+
+                
         font = pygame.font.SysFont(None, 24)
         text_surface = font.render(username, True, (255, 255, 255))
         headx = player_data['body'][0][0]
