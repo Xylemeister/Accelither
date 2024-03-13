@@ -9,10 +9,14 @@ import sys
 from database import update_high_score, register_player, get_top_three_scores
 from PIL import Image
 import os
+from collections import Counter
+import numpy as np
+import uuid
+
 
 
 #select a server port
-HOST = '172.31.45.48'
+HOST = '172.31.32.172'
 PORT = 12000
 
 ARENA_X = 1000
@@ -31,19 +35,30 @@ clock = pygame.time.Clock()
 # -------------------------------------------------------Get Random Snake----------------------------------------------------------------#
 
 
-def get_majority_color(image_path):
-    with Image.open(image_path) as img:
-        img = img.convert("RGB")
-        all_colors = img.getcolors(maxcolors=1000000)
-        most_common_color = sorted(all_colors, key=lambda x: x[0], reverse=True)[0][1]
-    return most_common_color
+def get_most_common_color(image_path):
+    image = Image.open(image_path)
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = np.array(image)
+
+    # Filter out fully transparent pixels
+    pixels = pixels.reshape(-1, 4)
+    pixels = pixels[pixels[:, 3] > 0][:, :3]  # Drop the alpha channel information
+
+    # Count colors
+    colors = Counter(map(tuple, pixels))
+
+    colors = {color: count for color, count in colors.items() if color != (0, 0, 0)}
+    most_common_color = max(colors, key=colors.get) if colors else (0, 0, 0)
+    return tuple(map(int, most_common_color))
+
 
 def load_random_snake_head(heads_directory):
     files = [f for f in os.listdir(heads_directory) if f.endswith(('.jpg', '.png'))]
     selected_file = random.choice(files)
     file_path = os.path.join(heads_directory, selected_file)
-    image = pygame.image.load(file_path).convert_alpha()
-    majority_color = get_majority_color(file_path)
+    majority_color = get_most_common_color(file_path)
     return majority_color, file_path
 
 # ---------------------------------------------------------------------------------------------------------------------------------#
@@ -88,19 +103,22 @@ class Player:
             "score": self.score,
             "dirX" : round(self.dirX, 2),
             "dirY" : round(self.dirY, 2),
-            "head_image": self.head_image_path,
+            "head_image_path": self.head_image_path,
             "body_color": self.body_color
         }
 
 class Food:
-    def __init__(self, x, y):
+    def __init__(self, x, y, uuid_val=None):
         self.x = x
         self.y = y
+        self.id = uuid_val if uuid_val is not None else uuid.uuid4()
+        
 
     def to_dict(self):
         return {
             "x": round(self.x, 2),
-            "y": round(self.y, 2)
+            "y": round(self.y, 2),
+            'id': str(self.id)
         }
 
 class GameData:
@@ -125,9 +143,8 @@ class GameData:
                         not_valid = True
                         break
             body_color, head_image_path = load_random_snake_head(self.directory)
-            self.players[player_id].head_image_path = head_image_path
-            self.players[player_id].body_color = body_color
             self.players[player_id] = Player(player_id, username, x, y, head_image_path, body_color)  
+            
 
     def remove_player(self, player_id):
         with self.lock:
@@ -169,7 +186,8 @@ class GameData:
         with self.lock:
             x = random.randint(FOOD_RAD, ARENA_X - FOOD_RAD)
             y = random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)
-            self.foods.append(Food(x, y))
+            id = uuid.uuid4()
+            self.foods.append(Food(x, y, id))
 
     def check_collision_player(self, player_id) -> bool:
         player = self.players[player_id]
