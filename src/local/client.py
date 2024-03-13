@@ -118,12 +118,13 @@ def show_score(choice, colour, font, size, score):
     score_font = pygame.font.SysFont(font, size)
     score_surface = score_font.render('Score : ' + str(score), True, colour)
     score_rect = score_surface.get_rect()
+    score = str(score).zfill(6)
     acc.Input.set7Seg(0,(0,0,0,0,0,0,0))
     acc.Input.set7Seg(1,(0,0,0,0,0,0,0))
     acc.Input.set7Seg(2,(0,0,0,0,0,0,0))
-    acc.Input.set7Seg(3,(0,0,0,0,0,0,0))
-    acc.Input.set7Seg(4,str(score//10))
-    acc.Input.set7Seg(5,str(score%10))
+    acc.Input.set7Seg(3,str(score)[-3])
+    acc.Input.set7Seg(4,str(score)[-2])
+    acc.Input.set7Seg(5,str(score)[-1])
     if choice == 1:
         score_rect.midtop = (SCREEN_X/10, 15)
     else:

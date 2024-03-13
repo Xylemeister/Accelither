@@ -10,7 +10,7 @@ from database import update_high_score, register_player, get_top_three_scores
 import game_pb2
 
 #select a server port
-HOST = '172.31.47.116'
+HOST = '172.31.44.2'
 PORT = 12000
 
 ARENA_X = 1000
@@ -231,7 +231,7 @@ class GameData:
                 with self.lock:
                     self.foods.pop(index)
                     player.score += 1
-                if (len(self.foods) < 20):
+                if (len(self.foods) < 70):
                     self.generate_food()
                 return True
         self.reduce_player_body(player_id)
@@ -299,11 +299,12 @@ class ServerThread(threading.Thread):
                         game_state, boundary_box = self.game_data.render_to_player(self.player_id)
                         game_state['alive'] = self.alive
                         game_state['score'] = self.game_data.players[self.player_id].score
+                        print("player" + self.username + " score is " + str(self.game_data.players[self.player_id].score))
                         game_state['food_eaten'] = eaten
                         game_state['boundary_box'] = boundary_box
                         #msg_out = json.dumps(game_state)
                         msg_out = dict_to_protobuf(game_state)
-                        print(msg_out.SerializeToString())
+                        #print(msg_out.SerializeToString())
                         self.connection.send(msg_out.SerializeToString(), self.player_id)
                         print("sent")
                     except:
