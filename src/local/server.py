@@ -6,7 +6,7 @@ import json
 import time
 import math
 import sys
-from database import update_high_score, register_player, get_top_three_scores
+from database import update_high_score, register_player, get_top_three_scores, add_death, add_kill
 import game_pb2
 from PIL import Image
 import os
@@ -116,9 +116,10 @@ def check_collision_circle(circle1, circle2):
     
 def check_collision_circle_list(circle, circle_list):
     for c in circle_list:
-        if check_collision_circle(circle,c):
-            return True
-    return False
+        print(c)
+        if check_collision_circle(circle,c[:3]):
+            return c[3]
+    return ""
 
 class Player:
     def __init__(self, player_id, username, x, y, head_image_path, body_color):
@@ -240,12 +241,15 @@ class GameData:
             if other_player.player_id != player_id:
                 for index, segment in enumerate(other_player.body):
                     if index == 0:
-                        all_player_bodies.append((segment[0],segment[1],HEAD_RAD))
+                        all_player_bodies.append((segment[0],segment[1],HEAD_RAD, other_player.username))
                     else:
-                        all_player_bodies.append((segment[0],segment[1],SNAKE_RAD))
-        if check_collision_circle_list(player_head_circle, all_player_bodies):
+                        all_player_bodies.append((segment[0],segment[1],SNAKE_RAD, other_player.username))
+        Killer = check_collision_circle_list(player_head_circle, all_player_bodies)
+        print(Killer)
+        if Killer != "":
             for body in player.body:
                 self.foods.append(Food(body[0], body[1]))
+            add_kill(Killer)
             print("player colision " + str(player_id))
             return True
         if (player.x < SNAKE_RAD or player.x > ARENA_X-SNAKE_RAD or player.y < SNAKE_RAD or player.y > ARENA_Y-SNAKE_RAD):
@@ -330,6 +334,7 @@ class ServerThread(threading.Thread):
         while self.connection.isAlive(self.player_id):
             if not self.alive:
                 update_high_score(self.username, self.game_data.players[self.player_id].score)
+                add_death(self.username)
                 leaderboard = get_top_three_scores()
                 leaderboard_msg = json.dumps(leaderboard)
                 print(leaderboard_msg)
