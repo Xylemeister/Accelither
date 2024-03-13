@@ -10,6 +10,7 @@ class TCPConnection():
 
     def __init__(self, ip, port, host = False, timeout = None):
         self.socket = s.socket(s.AF_INET, s.SOCK_STREAM)
+        self.socket.setsockopt(s.IPPROTO_TCP, s.TCP_NODELAY, 1)
         self.host = host
         if host:
             try:
@@ -103,10 +104,10 @@ class TCPConnection():
                 self.is_alive = False
                 return False
             except ConnectionAbortedError:
-                self.is_alive[1][client_index] = False
+                self.is_alive = False
                 return False
             except OSError:
-                self.is_alive[1][client_index] = False
+                self.is_alive = False
                 return False
     
     __BUFFER_SIZE = 8192

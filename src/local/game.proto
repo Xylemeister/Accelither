@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+message Coordinate {
+    float x = 1;
+    float y = 2;
+}
+
+message Player {
+    int32 player_id = 1;
+    string username = 2;
+    Coordinate position = 3;
+    repeated Coordinate body = 4;
+    int32 score = 5;
+    float dirX = 6;
+    float dirY = 7;
+    string head_image_path = 8;
+    repeated int32 body_color = 9;
+}
+
+message Food {
+    Coordinate position = 1;
+    string id = 2;
+}
+
+message GameData {
+    repeated Player players = 1;
+    repeated Food foods = 2;
+    bool alive = 3;
+    int32 score = 4;
+    int32 food_eaten = 5;
+    repeated float boundary_box = 6;
+}

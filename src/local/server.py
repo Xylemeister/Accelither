@@ -7,6 +7,7 @@ import time
 import math
 import sys
 from database import update_high_score, register_player, get_top_three_scores
+import game_pb2
 from PIL import Image
 import os
 from collections import Counter
@@ -16,7 +17,7 @@ import uuid
 
 
 #select a server port
-HOST = '172.31.32.172'
+HOST = '172.31.44.2'
 PORT = 12000
 
 ARENA_X = 1000
@@ -31,6 +32,40 @@ HEAD_RAD = 15
 
 clock = pygame.time.Clock()
 
+def dict_to_protobuf(data):
+    game_data = game_pb2.GameData()
+    
+    # Convert players
+    for player_data in data["players"]:
+        player = game_data.players.add()
+        player.player_id = player_data["player_id"]
+        player.username = player_data["username"]
+        player.position.x = player_data["x"]
+        player.position.y = player_data["y"]
+        player.score = player_data["score"]
+        player.dirX = player_data["dirX"]
+        player.dirY = player_data["dirY"]
+        for body_part in player_data["body"]:
+            body_coord = player.body.add()
+            body_coord.x = body_part[0]
+            body_coord.y = body_part[1]
+        player.head_image_path = player_data["head_image_path"]
+        player.body_color[:] = player_data["body_color"]
+    
+    # Convert foods
+    for food_data in data["foods"]:
+        food = game_data.foods.add()
+        food.position.x = food_data["x"]
+        food.position.y = food_data["y"]
+        food.id = food_data["id"]
+    
+    # Set game state
+    game_data.alive = data["alive"]
+    game_data.score = data["score"]
+    game_data.food_eaten = data["food_eaten"]
+    game_data.boundary_box[:] = data["boundary_box"]
+    
+    return game_data
 
 # -------------------------------------------------------Get Random Snake----------------------------------------------------------------#
 
@@ -131,11 +166,12 @@ class GameData:
     def __init__(self, heads_directory):
         self.directory = heads_directory
         self.players = {}
-        self.foods = [Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)) for _ in range(0,10)]
+        self.foods = [Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)) for _ in range(0,20)]
         self.lock = threading.Lock()
 
     def add_player(self, player_id, username):
         print("added player")
+
         with self.lock:
             not_valid = True
             x,y = 0,0
@@ -208,9 +244,13 @@ class GameData:
                     else:
                         all_player_bodies.append((segment[0],segment[1],SNAKE_RAD))
         if check_collision_circle_list(player_head_circle, all_player_bodies):
+            for body in player.body:
+                self.foods.append(Food(body[0], body[1]))
             print("player colision " + str(player_id))
             return True
         if (player.x < SNAKE_RAD or player.x > ARENA_X-SNAKE_RAD or player.y < SNAKE_RAD or player.y > ARENA_Y-SNAKE_RAD):
+            for body in player.body:
+                self.foods.append(Food(body[0], body[1]))
             print("wall collision " + str(player_id))
             return True
         return False
@@ -222,11 +262,22 @@ class GameData:
         for player in return_dict['players']:
             player['x'] = round(player['x'] - centerx+SCREEN_X//2,1)
             player['y'] = round(player['y'] - centery+SCREEN_Y//2,1)
-            player['body'] = [(round(x-centerx+SCREEN_X//2,1), round(y-centery+SCREEN_Y//2,1)) for x,y in player['body']]
+            player['body'] = [(round(x-centerx+SCREEN_X//2,1), round(y-centery+SCREEN_Y//2,1)) for x,y in player['body'] if x > centerx - SCREEN_X//2 - HEAD_RAD and x < centerx + SCREEN_X//2 + HEAD_RAD and y < centery + SCREEN_Y//2 + HEAD_RAD and y > centery - SCREEN_Y//2 - HEAD_RAD]
+        tmp_array = []
+        for player in return_dict['players']:
+            if len(player['body']) != 0:
+                tmp_array.append(player)
+        return_dict['players'] = tmp_array
 
+        tmp_array = []
         for food in return_dict['foods']:
-            food['x'] = round(food['x'] - centerx+SCREEN_X//2,1)
-            food['y'] = round(food['y'] - centery+SCREEN_Y//2,1)
+            x = food['x']
+            y = food['y']
+            if x > centerx - SCREEN_X//2 - HEAD_RAD and x < centerx + SCREEN_X//2 + HEAD_RAD and y < centery + SCREEN_Y//2 + HEAD_RAD and y > centery - SCREEN_Y//2 - HEAD_RAD:
+                food['x'] = round(food['x'] - centerx+SCREEN_X//2,1)
+                food['y'] = round(food['y'] - centery+SCREEN_Y//2,1)
+                tmp_array.append(food)
+        return_dict['foods'] = tmp_array
         return return_dict, (round(SCREEN_X//2-centerx,1), round(SCREEN_Y//2-centery,1))
 
     
@@ -239,7 +290,8 @@ class GameData:
                 with self.lock:
                     self.foods.pop(index)
                     player.score += 1
-                self.generate_food()
+                if (len(self.foods) < 70):
+                    self.generate_food()
                 return True
         self.reduce_player_body(player_id)
         return False
@@ -263,17 +315,16 @@ class ServerThread(threading.Thread):
             client_input = self.connection.recv(self.player_id)
             if client_input:
                 json_msg = client_input.decode()
-                try: 
-                    msg = json.loads(json_msg)
-                    username = msg["username"]
-                    if username == "":
-                        username = "Guest"+str(self.player_id)
-                    no_username = False
-                    self.game_data.add_player(player_id, username)
-                    register_player(username)
-                    self.username = username
-                except:
-                    continue
+                msg = json.loads(json_msg)
+                username = msg["username"]
+                if username == "":
+                    username = "Guest"+str(self.player_id)
+                no_username = False
+                self.game_data.add_player(player_id, username)
+                register_player(username)
+                self.username = username
+                # except:
+                #     continue
 
     def run(self):
         while self.connection.isAlive(self.player_id):
@@ -292,7 +343,7 @@ class ServerThread(threading.Thread):
                 client_input = self.connection.recv(self.player_id)
                 if client_input != b"":
                     json_msg = client_input.decode()
-                    try: 
+                    try:
                         msg = json.loads(json_msg)
                         x = msg["x"]
                         y = msg["y"]
@@ -306,10 +357,13 @@ class ServerThread(threading.Thread):
                         game_state, boundary_box = self.game_data.render_to_player(self.player_id)
                         game_state['alive'] = self.alive
                         game_state['score'] = self.game_data.players[self.player_id].score
+                        print("player" + self.username + " score is " + str(self.game_data.players[self.player_id].score))
                         game_state['food_eaten'] = eaten
                         game_state['boundary_box'] = boundary_box
-                        msg_out = json.dumps(game_state)
-                        self.connection.send(msg_out.encode(), self.player_id)
+                        #msg_out = json.dumps(game_state)
+                        msg_out = dict_to_protobuf(game_state)
+                        #print(msg_out.SerializeToString())
+                        self.connection.send(msg_out.SerializeToString(), self.player_id)
                         print("sent")
                     except:
                         print("failed")
@@ -327,7 +381,6 @@ def main():
 
     server = TCPConnection(HOST, PORT, host=True)
     server.setMaxClients(5)
-
     while server.isAlive():
         client_index = server.acceptNewClient()
         if client_index is not None:

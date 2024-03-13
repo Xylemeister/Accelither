@@ -4,13 +4,14 @@ import de10 as acc
 from netcode.TCPConnection import TCPConnection
 import time
 import math
+import game_pb2
 import os
 import sys
 import random
 import colorsys
 
 # Server IP address and port
-HOST = '18.169.52.248'
+HOST = '3.8.153.70'
 PORT = 12000
 
 # Screen dimensions
@@ -43,6 +44,39 @@ sounds = { "omnom" : pygame.mixer.Sound("media/sounds/sound_effects/eat_sound.mp
          }
 
 # -----------------------------------------------Login Screen-----------------------------------------------------------#
+
+def protobuf_to_dict(protobuf_message):
+    result = {
+        "players": [],
+        "foods": [],
+        "alive": protobuf_message.alive,
+        "score": protobuf_message.score,
+        "food_eaten": protobuf_message.food_eaten,
+        "boundary_box": tuple(protobuf_message.boundary_box),
+    }
+    
+    # Convert players
+    for player in protobuf_message.players:
+        player_data = {
+            "player_id": player.player_id,
+            "username": player.username,
+            "x": player.position.x,
+            "y": player.position.y,
+            "score": player.score,
+            "dirX": player.dirX,
+            "dirY": player.dirY,
+            "body": [(coord.x, coord.y) for coord in player.body],
+            "head_image_path" : player.head_image_path,
+            "body_color" : tuple(player.body_color)
+        }
+        result["players"].append(player_data)
+    
+    # Convert foods
+    for food in protobuf_message.foods:
+        food_data = {"x": food.position.x, "y": food.position.y, "id": food.id }
+        result["foods"].append(food_data)
+    
+    return result
 
 def load_frames(directory, screen):
     frames = []
@@ -166,12 +200,13 @@ def show_score(choice, colour, font, size, score):
     score_font = pygame.font.SysFont(font, size)
     score_surface = score_font.render('Score : ' + str(score), True, colour)
     score_rect = score_surface.get_rect()
+    score = str(score).zfill(6)
     acc.Input.set7Seg(0,(0,0,0,0,0,0,0))
     acc.Input.set7Seg(1,(0,0,0,0,0,0,0))
     acc.Input.set7Seg(2,(0,0,0,0,0,0,0))
-    acc.Input.set7Seg(3,(0,0,0,0,0,0,0))
-    acc.Input.set7Seg(4,str(score//10))
-    acc.Input.set7Seg(5,str(score%10))
+    acc.Input.set7Seg(3,str(score)[-3])
+    acc.Input.set7Seg(4,str(score)[-2])
+    acc.Input.set7Seg(5,str(score)[-1])
     if choice == 1:
         score_rect.midtop = (SCREEN_X/10, 15)
     else:
@@ -344,7 +379,7 @@ def render_game_state(screen, game_state):
 
                 
         font = pygame.font.SysFont(None, 24)
-        text_surface = font.render(username, True, (255, 255, 255))
+        text_surface = font.render(username, True, complement_color)
         headx = player_data['body'][0][0]
         heady = player_data['body'][0][1]
         text_rect = text_surface.get_rect(center=(headx, heady-30))
@@ -383,15 +418,14 @@ def main():
 
     intro_music()
     frames_directory = 'media/AccelitherLogin' 
-    frames = load_frames(frames_directory, screen) # comment out to quickly login
-    last_frame = play_frames(frames, screen) # comment out to quickly login
+    #frames = load_frames(frames_directory, screen) # comment out to quickly login
+    #last_frame = play_frames(frames, screen) # comment out to quickly login
     load_player_images()
-    username = input_username(screen, last_frame) # remove screen argument to quickly login 
+    username = input_username(screen)#, last_frame) # remove screen argument to quickly login 
     pygame.mixer.music.stop()
     
     # Initialize the TCP connection
     connection = TCPConnection(HOST, PORT)
-    not_break = True
 
     msg = {
         'username' : username,
@@ -410,8 +444,10 @@ def main():
     play_next_song(songs, current_song_index[0])
     
 
+    time.sleep(1)
+
     # Main loop
-    while not_break:
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -433,10 +469,27 @@ def main():
         connection.send(msg_json.encode())
 
         # Receive game state from the server
-        game_state_json = connection.recv(timeout=0.3)
-        if game_state_json:
+        
+        game_state_json = connection.recv(timeout=0.1)
+        try:
+            received_game_data = game_pb2.GameData()
+            received_game_data.ParseFromString(game_state_json)
+        except:
+            continue
+        '''
+        curr = 0
+        for ind,char in enumerate(game_state_json):
+            if char == '{':
+                curr+=1
+            elif char == '}':
+                curr-=1
+            if curr == 0:
+                game_state_json = game_state_json[:ind+1]
+        '''
+        if received_game_data:
             try:
-                game_state = json.loads(game_state_json)
+                #game_state = json.loads(game_state_json)
+                game_state = protobuf_to_dict(received_game_data)
                 score = game_state['score']
                 render_game_state(screen, game_state)
                 if not game_state['alive']:
