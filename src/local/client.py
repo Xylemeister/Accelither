@@ -30,6 +30,7 @@ STATE_GAME_OVER = 1
 STATE_RESTART = 2
 STATE_QUIT = 3
 
+food_id_to_image = {}
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -444,7 +445,65 @@ def render_game_state(screen, game_state):
     # Update the display
     pygame.display.flip()
 
-food_id_to_image = {}
+
+# -----------------------------------------------Reset Game-----------------------------------------------------------#
+    
+
+def reset_game(connection, username, songs, current_song_index):    #### Reset ####
+    
+    
+    if connection is not None:
+        connection.close()  
+    
+    current_song_index = [0]  
+    # do we need to reset player related states?
+    # e.g., player position, score, etc.
+    pygame.mixer.music.stop()
+    # Any other game state resets?
+
+    if connection is not None:
+        connection.close()  
+        connection = None
+
+    ### Start again ####
+
+    intro_music()
+    frames_directory = 'media/AccelitherLogin' 
+    frames = load_frames(frames_directory, screen) # comment out to quickly login
+    last_frame = play_frames(frames, screen) # comment out to quickly login
+    load_player_images()
+    username = input_username(screen, last_frame) # remove screen argument to quickly login 
+    pygame.mixer.music.stop()
+    
+    # Initialize the TCP connection
+    connection = TCPConnection(HOST, PORT)
+
+    msg = {
+        'username' : username,
+        'x' : acc.Input.getX(),
+        'y' : acc.Input.getY(),
+        'speed': BASE_SPEED+acc.Input.getButton(0)*2-acc.Input.getButton(1)*2}
+    
+    msg_json = json.dumps(msg)
+
+    connection.send(msg_json.encode())
+
+    # Initialize music
+    songs = load_playlist('media/sounds/ingame_music')
+    current_song_index = [0]  
+    MUSIC_END = setup_music_end_event()
+    play_next_song(songs, current_song_index[0])
+    
+
+    time.sleep(1)
+
+    return connection, username, songs, current_song_index
+
+    
+
+
+
+
 
 # -----------------------------------------------Main-----------------------------------------------------------#
 
@@ -543,24 +602,18 @@ def main():
             
         elif state == STATE_GAME_OVER:
             player_choice = gamover(score, connection)  # Use your updated gamover function here
-            #connection.close()
+            connection.close()
             if player_choice == 'quit':
                 state = STATE_QUIT
             elif player_choice == 'restart':
                 state = STATE_RESTART
 
         elif state == STATE_RESTART:
-            # Reset game state or reinitialize game components
-            pygame.mixer.music.stop()
-            # Possibly reinitialize connection or confirm it's in a good state
-            # Reset game data (score, player position, etc.)
-            # Switch back to the running state
-            main()
-            #state = STATE_RUNNING
+            connection, username, songs, current_song_index = reset_game(connection, username, songs, current_song_index)
+            state = STATE_RUNNING
 
 
         elif state == STATE_QUIT:
-            #connection.close()
             pygame.quit()
             sys.exit()
         
