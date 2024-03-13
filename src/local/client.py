@@ -5,6 +5,10 @@ from netcode.TCPConnection import TCPConnection
 import time
 import math
 import game_pb2
+import os
+import sys
+import random
+import colorsys
 
 # Server IP address and port
 HOST = '3.8.153.70'
@@ -21,21 +25,25 @@ SNAKE_RAD = 10
 HEAD_RAD = 15
 BASE_SPEED = 3
 
+
 # Initialize pygame
 pygame.init()
+
 clock = pygame.time.Clock()
 
 # Initialize the screen
 screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
 pygame.display.set_caption('Snake Game Client')
 
-sounds = { "omnom" : pygame.mixer.Sound("eat_sound.mp3"),
-           "oopsydaisy" : pygame.mixer.Sound("collision_sound.mp3"),
-           "womp_womp" : pygame.mixer.Sound("womp-womp.mp3")
+
+
+
+sounds = { "omnom" : pygame.mixer.Sound("media/sounds/sound_effects/eat_sound.mp3"),
+           "oopsydaisy" : pygame.mixer.Sound("media/sounds/sound_effects/collision_sound.mp3"),
+           "womp_womp" : pygame.mixer.Sound("media/sounds/sound_effects/womp-womp.mp3")
          }
 
-import pygame
-import sys
+# -----------------------------------------------Login Screen-----------------------------------------------------------#
 
 def protobuf_to_dict(protobuf_message):
     result = {
@@ -68,15 +76,44 @@ def protobuf_to_dict(protobuf_message):
     
     return result
 
+def load_frames(directory, screen):
+    frames = []
+    for filename in sorted(os.listdir(directory)):
+        if filename.endswith('.jpg'):
+            path = os.path.join(directory, filename)
+            frame = pygame.image.load(path).convert()
+            frame = pygame.transform.scale(frame, screen.get_size())  # Scale frame to fit screen
+            frames.append(frame)
+    return frames
 
-def input_username():
+def play_frames(frames, screen):
+    clock = pygame.time.Clock()
+    for frame in frames:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        screen.blit(frame, (0, 0))
+        pygame.display.flip()
+        clock.tick(30)  # Control frame rate
+    return frames[-1]  # Return the last frame
+
+def input_username(screen, last_frame=None):
 
     # Set up fonts
     font = pygame.font.SysFont(None, 32)
 
     username = ""
-    input_rect = pygame.Rect(100, 100, 200, 50)
+
+    box_width = 400
+    box_height = 50
+    x_position = (SCREEN_X - box_width) // 2
+    y_position = (SCREEN_Y - box_height) // 1.5
+    input_rect = pygame.Rect(x_position, y_position, box_width, box_height)
     active = False
+
+    input_box_color = (255, 255, 255)  
+    text_color = (255, 255, 255) 
 
     while True:
         for event in pygame.event.get():
@@ -97,13 +134,56 @@ def input_username():
                     else:
                         username += event.unicode
 
-        screen.fill((255, 255, 255))
-        pygame.draw.rect(screen, (0, 0, 0), input_rect, 2)
+        if last_frame is not None:
+            screen.blit(last_frame, (0, 0))
+        else:
+            screen.fill((0, 0, 0))
+        
+        # Draw input box
+        pygame.draw.rect(screen, input_box_color, input_rect, 2)  # Change border color here
+        
+        # Render and draw username text
+        text_surface = font.render(username, True, text_color)  # Adjust text color here
+        text_width, text_height = font.size(username)
+        text_x = input_rect.x + (input_rect.width - text_width) // 2
+        text_y = input_rect.y + (input_rect.height - text_height) // 2
 
-        text_surface = font.render(username, True, (0, 0, 0))
-        screen.blit(text_surface, (input_rect.x + 5, input_rect.y + 5))
-
+        screen.blit(text_surface, (text_x, text_y))
+        
         pygame.display.flip()
+
+
+# ---------------------------------------------------Music--------------------------------------------------------#
+def intro_music(loop=True):
+    intro_music_path = "media/sounds/intro_music/the-republic-zac-tiessen-main-version-21765-01-46.mp3"
+    pygame.mixer.music.load(intro_music_path)
+    if loop:
+        pygame.mixer.music.play(-1)  # Play music in a loop
+    else:
+        pygame.mixer.music.play()
+
+def load_playlist(directory):
+    # Scan the directory for mp3 files and return the list
+    songs = [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith('.mp3')]
+    random.shuffle(songs)  # Shuffle the playlist
+    return songs
+
+def setup_music_end_event():
+    # Define a custom event for when a music track ends
+    MUSIC_END = pygame.USEREVENT+1
+    pygame.mixer.music.set_endevent(MUSIC_END)
+    return MUSIC_END
+
+def play_next_song(songs, current_song_index):
+    # If there are no songs, just return
+    if not songs:
+        return
+    # Load and play the current song, wrap around the list if needed
+    pygame.mixer.music.load(songs[current_song_index % len(songs)])
+    pygame.mixer.music.play()
+# ----------------------------------------------------------------------------------------------------------------#
+
+
 
 def get_angle(x, y):
     
@@ -176,25 +256,126 @@ def blitRotate(surf, image, origin, pivot, angle):
     offset_center_to_pivot = pygame.math.Vector2(origin) - image_rect.center
     rotated_offset = offset_center_to_pivot.rotate(-angle)
     rotated_image_center = (origin[0] - rotated_offset.x, origin[1] - rotated_offset.y)
-    rotated_image = pygame.transform.rotozoom(image, angle, 0.7)
+    rotated_image = pygame.transform.rotozoom(image, 180 + angle, 0.05)
     rotated_image_rect = rotated_image.get_rect(center = rotated_image_center)
     surf.blit(rotated_image, rotated_image_rect)
+
+# -----------------------------------------------Drawing -----------------------------------------------------------#
+
+
+
+    
+def draw_grid_background(screen, grid_color=(56, 56, 56), grid_spacing=20):
+   
+    screen_width, screen_height = screen.get_size()
+    
+    # Draw vertical lines
+    for x in range(0, screen_width, grid_spacing):
+        pygame.draw.line(screen, grid_color, (x, 0), (x, screen_height))
+    
+    # Draw horizontal lines
+    for y in range(0, screen_height, grid_spacing):
+        pygame.draw.line(screen, grid_color, (0, y), (screen_width, y))
+
+
+def draw_scaled_segment(screen, color, complement_color, position, radius):
+    # Draw the base circle
+    pygame.draw.circle(screen, color, position, radius)
+    
+    num_scales = 8  # Adjust the number of scales 
+    scale_radius = radius // num_scales * 2  # Radius of the scales
+    
+    # Adjusted the angle to make sure we cover the circle in a radial pattern
+    for angle in range(0, 360, 360 // num_scales):
+        angle_rad = math.radians(angle)  
+        for r in range(scale_radius, radius, scale_radius):  # Start at scale_radius to avoid center and go to the edge
+            scale_x = int(position[0] + r * math.cos(angle_rad))
+            scale_y = int(position[1] + r * math.sin(angle_rad))
+            
+            # Draw the scale if it's within the circle's boundary
+            dist_to_center = math.sqrt((scale_x - position[0]) ** 2 + (scale_y - position[1]) ** 2)
+            if dist_to_center + scale_radius / 2 <= radius:
+                pygame.draw.circle(screen, complement_color, (scale_x, scale_y), scale_radius // 2)
+
+
+def get_complementary_color(rgb):
+    r, g, b = [x / 255.0 for x in rgb]
+    
+    h, s, v = colorsys.rgb_to_hsv(r, g, b)
+    
+    h = (h + 0.5) % 1.0
+    
+    r, g, b = colorsys.hsv_to_rgb(h, s, v)
+    
+    return tuple(int(x * 255) for x in (r, g, b))
+
+# -----------------------------------------------Load Images-----------------------------------------------------------#
+image_cache = {}
+
+def load_player_images(directory="media/AccelitherHeads"):
+    for filename in os.listdir(directory):
+        if filename.endswith('.png'):  # Assuming all images are PNGs
+            path = os.path.join(directory, filename)
+            try:
+                image = pygame.image.load(path).convert_alpha()
+                image_cache[path] = image  # Store the image with its path as the key
+            except pygame.error as e:
+                print(f"Error loading image: {path}. Error: {e}")
+
+                
+def load_player_image(image_path):
+    if image_path in image_cache:
+        return image_cache[image_path]
+    try:
+        image = pygame.image.load(image_path).convert_alpha()
+        image_cache[image_path] = image  
+        return image
+    except pygame.error:
+        print(f"Error loading image: {image_path}")
+        # Return a default image if the desired one fails to load
+        return pygame.Surface((HEAD_RAD*2, HEAD_RAD*2), pygame.SRCALPHA)
+    
+
+def load_and_resize_food_images(directory, size):
+    food_images = []
+    for filename in os.listdir(directory):
+        if filename.endswith('.png'):  # Assuming the images are PNGs
+            path = os.path.join(directory, filename)
+            image = pygame.image.load(path).convert_alpha()
+            image = pygame.transform.scale(image, size)
+            food_images.append(image)
+    return food_images
+
+food_images_resized = load_and_resize_food_images('media/Food', (2 * FOOD_RAD, 2 * FOOD_RAD))
+
+# -------------------------------------------------------Render Game----------------------------------------------------------------#
+
 
 # Function to render game state
 def render_game_state(screen, game_state):
     # Clear the screen
     screen.fill((0, 0, 0))
-    snake_head = pygame.image.load('snake.svg')
-    
+    draw_grid_background(screen)
+
     for player_data in game_state['players']:
+        snake_head_path = player_data['head_image_path']
+        snake_head = load_player_image(snake_head_path) 
         username = player_data['username']
         dirX = player_data['dirX']
         dirY = player_data['dirY']
+        body_color = player_data['body_color']
+        complement_color = get_complementary_color(body_color)
+        #print(body_color)
+    
         for index, segment in enumerate(reversed(player_data['body'])):
             if index == len(player_data['body'])-1:  # Draw the head of the snake
-                blitRotate(screen, snake_head, segment, (21.3,20), get_angle(dirX,dirY))
+                blitRotate(screen, snake_head, segment, (256,256), get_angle(dirX,dirY))
             else:
-                pygame.draw.circle(screen, (160, 196, 50), segment, SNAKE_RAD)
+                segment_pos = (int(segment[0]), int(segment[1]))
+                draw_scaled_segment(screen, body_color, complement_color, segment_pos, SNAKE_RAD)
+                #pygame.draw.circle(screen, body_color, segment, SNAKE_RAD)
+
+                
         font = pygame.font.SysFont(None, 24)
         text_surface = font.render(username, True, (255, 255, 255))
         headx = player_data['body'][0][0]
@@ -210,34 +391,68 @@ def render_game_state(screen, game_state):
     # Render food
     foods = game_state['foods']
     for food in foods:
-        pygame.draw.circle(screen, (255, 0, 0), (food['x'], food['y']), FOOD_RAD)
-    show_score(1, SCORE_COLOUR, 'Comic Sans', 20, game_state['score'])
+        if food['id'] not in food_id_to_image:
+            food_id_to_image[food['id']] = random.choice(food_images_resized)
+        
+        food_image = food_id_to_image[food['id']]
+        screen.blit(food_image,(food['x'] - FOOD_RAD, food['y'] - FOOD_RAD))
 
+    current_food_uuids = set(food['id'] for food in game_state["foods"])
+    uuids_to_remove = [uuid for uuid in food_id_to_image if uuid not in current_food_uuids]
+    for uuid in uuids_to_remove:
+        del food_id_to_image[uuid]
+
+    show_score(1, SCORE_COLOUR, 'Comic Sans', 20, game_state['score'])
     # Update the display
     pygame.display.flip()
 
+food_id_to_image = {}
+
+# -----------------------------------------------Main-----------------------------------------------------------#
+
+
 # Main function to run the client
 def main():
-    username = input_username()
+
+    intro_music()
+    frames_directory = 'media/AccelitherLogin' 
+    frames = load_frames(frames_directory, screen) # comment out to quickly login
+    last_frame = play_frames(frames, screen) # comment out to quickly login
+    load_player_images()
+    username = input_username(screen, last_frame) # remove screen argument to quickly login 
+    pygame.mixer.music.stop()
+    
     # Initialize the TCP connection
     connection = TCPConnection(HOST, PORT)
 
-    not_break = True
-    
-    msg_init = {
+    msg = {
         'username' : username,
         'x' : acc.Input.getX(),
         'y' : acc.Input.getY(),
         'speed': BASE_SPEED+acc.Input.getButton(0)*2-acc.Input.getButton(1)*2}
-
-    msg_json_init = json.dumps(msg_init)
-        
-    #send the message to the udp server
-    connection.send(msg_json_init.encode())
-    time.sleep(0.02)
     
+    msg_json = json.dumps(msg)
+
+    connection.send(msg_json.encode())
+
+    # Initialize music
+    songs = load_playlist('media/sounds/ingame_music')
+    current_song_index = [0]  # Using a list to allow modification in nested scope
+    MUSIC_END = setup_music_end_event()
+    play_next_song(songs, current_song_index[0])
+    
+
     # Main loop
-    while not_break:
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == MUSIC_END:
+                # When one song ends, play the next
+                current_song_index[0] += 1 
+                play_next_song(songs, current_song_index[0])
+
         msg = {
         'username' : username,
         'x' : acc.Input.getX(),

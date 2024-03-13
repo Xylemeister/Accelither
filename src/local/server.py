@@ -8,6 +8,13 @@ import math
 import sys
 from database import update_high_score, register_player, get_top_three_scores
 import game_pb2
+from PIL import Image
+import os
+from collections import Counter
+import numpy as np
+import uuid
+
+
 
 #select a server port
 HOST = '172.31.44.2'
@@ -57,6 +64,43 @@ def dict_to_protobuf(data):
     
     return game_data
 
+# -------------------------------------------------------Get Random Snake----------------------------------------------------------------#
+
+def get_most_common_color(image_path):
+    image = Image.open(image_path)
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = np.array(image)
+
+    # Filter out fully transparent pixels
+    pixels = pixels.reshape(-1, 4)
+    pixels = pixels[pixels[:, 3] > 0][:, :3]  # Drop the alpha channel information
+
+    # Count colors
+    colors = Counter(map(tuple, pixels))
+
+    # Define a threshold for non-black colors
+    non_black_threshold = 50
+
+    # Filter out colors that are black or close to black
+    colors = {color: count for color, count in colors.items() if all(value > non_black_threshold for value in color)}
+
+    # Find the most common non-black color, defaulting to a placeholder if none are found
+    most_common_non_black_color = max(colors, key=colors.get) if colors else (255, 255, 255)  # Default to white if no non-black color is found
+
+    return tuple(map(int, most_common_non_black_color))
+
+
+def load_random_snake_head(heads_directory):
+    files = [f for f in os.listdir(heads_directory) if f.endswith(('.jpg', '.png'))]
+    selected_file = random.choice(files)
+    file_path = os.path.join(heads_directory, selected_file)
+    majority_color = get_most_common_color(file_path)
+    return majority_color, file_path
+
+# ---------------------------------------------------------------------------------------------------------------------------------#
+
 
 def check_collision_circle(circle1, circle2):
     diffx = circle1[0] - circle2[0]
@@ -74,7 +118,7 @@ def check_collision_circle_list(circle, circle_list):
     return False
 
 class Player:
-    def __init__(self, player_id, username, x, y):
+    def __init__(self, player_id, username, x, y, head_image_path, body_color):
         self.username = username
         self.player_id = player_id
         self.x = x
@@ -84,6 +128,8 @@ class Player:
         self.dirX = 0
         self.dirY = 0
         self.speed = 3
+        self.head_image_path = head_image_path  # Path to the head image
+        self.body_color = body_color  # RGB color tuple
 
     def to_dict(self):
         return {
@@ -94,22 +140,28 @@ class Player:
             "body": [(round(x,2),round(y,2)) for (x,y) in self.body],
             "score": self.score,
             "dirX" : round(self.dirX, 2),
-            "dirY" : round(self.dirY, 2)
+            "dirY" : round(self.dirY, 2),
+            "head_image_path": self.head_image_path,
+            "body_color": self.body_color
         }
 
 class Food:
-    def __init__(self, x, y):
+    def __init__(self, x, y, uuid_val=None):
         self.x = x
         self.y = y
+        self.id = uuid_val if uuid_val is not None else uuid.uuid4()
+        
 
     def to_dict(self):
         return {
             "x": round(self.x, 2),
-            "y": round(self.y, 2)
+            "y": round(self.y, 2),
+            'id': str(self.id)
         }
 
 class GameData:
-    def __init__(self):
+    def __init__(self, heads_directory):
+        self.directory = heads_directory
         self.players = {}
         self.foods = [Food(random.randint(FOOD_RAD, ARENA_X - FOOD_RAD), random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)) for _ in range(0,20)]
         self.lock = threading.Lock()
@@ -128,7 +180,9 @@ class GameData:
                     if dist < 200:
                         not_valid = True
                         break
-            self.players[player_id] = Player(player_id, username, x, y)
+            body_color, head_image_path = load_random_snake_head(self.directory)
+            self.players[player_id] = Player(player_id, username, x, y, head_image_path, body_color)  
+            
 
     def remove_player(self, player_id):
         with self.lock:
@@ -170,7 +224,8 @@ class GameData:
         with self.lock:
             x = random.randint(FOOD_RAD, ARENA_X - FOOD_RAD)
             y = random.randint(FOOD_RAD, ARENA_Y - FOOD_RAD)
-            self.foods.append(Food(x, y))
+            id = uuid.uuid4()
+            self.foods.append(Food(x, y, id))
 
     def check_collision_player(self, player_id) -> bool:
         player = self.players[player_id]
@@ -318,7 +373,8 @@ class ServerThread(threading.Thread):
 
 def main():
 
-    game_data = GameData()
+    image_directory = "media/AccelitherHeads"
+    game_data = GameData(heads_directory=image_directory)
 
     server = TCPConnection(HOST, PORT, host=True)
     server.setMaxClients(5)
@@ -331,4 +387,7 @@ def main():
         clock.tick(60)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"Error occurred: {e}")
