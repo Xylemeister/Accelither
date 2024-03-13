@@ -11,7 +11,7 @@ import random
 import colorsys
 
 # Server IP address and port
-HOST = '3.8.153.70'
+HOST = '18.169.52.248'
 PORT = 12000
 
 # Screen dimensions
@@ -404,7 +404,12 @@ def render_game_state(screen, game_state):
     for uuid in uuids_to_remove:
         del food_id_to_image[uuid]
 
-    show_score(1, SCORE_COLOUR, 'Comic Sans', 20, game_state['score'])
+    if(acc.Input.getSwitch(0)):
+        acc.Input.setLED(0, True)
+        show_score(1, SCORE_COLOUR, 'Comic Sans', 20, game_state['score'])
+    elif(acc.Input.getSwitch(0) == False):
+        acc.Input.setLED(0, False)
+    
     # Update the display
     pygame.display.flip()
 
