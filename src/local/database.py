@@ -32,7 +32,40 @@ def update_high_score(player_id, new_score, dynamodb=None):
         except ClientError as e:
             logging.error(e)
             return None
+        
+        
+def add_death(player_id, region_name='default-region'):
+    dynamodb = boto3.resource('dynamodb', region_name=region_name)
+    table = dynamodb.Table('Leaderboard')
+
+    try:
+        response = table.update_item(
+            Key={'PlayerId': player_id},
+            UpdateExpression="set Death= if_not_exists(Death, :start) + :increment",
+            ExpressionAttributeValues={':increment': 1, ':start': 0},
+            ReturnValues="UPDATED_NEW"
+        )
+        return response  
+    except ClientError as e:
+        logging.error(e)
+        return None
     
+def add_kill(player_id, region_name='default-region'):
+    dynamodb = boto3.resource('dynamodb', region_name=region_name)
+    table = dynamodb.Table('Leaderboard')
+
+    try:
+        response = table.update_item(
+            Key={'PlayerId': player_id},
+            UpdateExpression="set Kill= if_not_exists(Kill, :start) + :increment",
+            ExpressionAttributeValues={':increment': 1, ':start': 0},
+            ReturnValues="UPDATED_NEW"
+        )
+        return response  
+    except ClientError as e:
+        logging.error(e)
+        return None
+
     
 def register_player(player_id, dynamodb=None):
     """Register a new player in the DynamoDB table."""
@@ -52,10 +85,14 @@ def register_player(player_id, dynamodb=None):
 
         # Add new player with initial high score
         initial_high_score = 0
+        initial_death = 0
+        initial_kill = 0
         response = table.put_item(
             Item={
                 'PlayerId': player_id,
-                'HighScore': initial_high_score
+                'HighScore': initial_high_score,
+                'Death': initial_death,
+                'Kill' : initial_kill
             }
         )
         logging.info(f"Player {player_id} registered with initial high score of {initial_high_score}.")
