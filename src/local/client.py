@@ -7,7 +7,7 @@ import math
 import game_pb2
 
 # Server IP address and port
-HOST = '18.130.236.221'
+HOST = '3.8.153.70'
 PORT = 12000
 
 # Screen dimensions
@@ -251,8 +251,11 @@ def main():
         # Receive game state from the server
         
         game_state_json = connection.recv(timeout=0.1)
-        received_game_data = game_pb2.GameData()
-        received_game_data.ParseFromString(game_state_json)
+        try:
+            received_game_data = game_pb2.GameData()
+            received_game_data.ParseFromString(game_state_json)
+        except:
+            continue
         '''
         curr = 0
         for ind,char in enumerate(game_state_json):
