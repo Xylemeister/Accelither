@@ -118,6 +118,8 @@ def get_top_three_scores(dynamodb=None):
 
         for score in top_three_scores:
             score['HighScore'] = int(score['HighScore'])
+            score['Death'] = int(score['Death'])
+            score['Kill'] = int(score['Kill'])
         return top_three_scores
     except ClientError as e:
         logging.error(e)
