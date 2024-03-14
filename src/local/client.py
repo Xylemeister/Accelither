@@ -9,9 +9,13 @@ import os
 import sys
 import random
 import colorsys
+from PIL import Image
+import numpy as np
+from collections import Counter
+
 
 # Server IP address and port
-HOST = '3.8.153.70'
+HOST = '18.169.52.248'
 PORT = 12000
 
 # Screen dimensions
@@ -68,7 +72,6 @@ def protobuf_to_dict(protobuf_message):
             "dirY": player.dirY,
             "body": [(coord.x, coord.y) for coord in player.body],
             "head_image_path" : player.head_image_path,
-            "body_color" : tuple(player.body_color)
         }
         result["players"].append(player_data)
     
@@ -332,16 +335,6 @@ def draw_scaled_segment(screen, color, complement_color, position, radius):
                 pygame.draw.circle(screen, complement_color, (scale_x, scale_y), scale_radius // 2)
 
 
-def get_complementary_color(rgb):
-    r, g, b = [x / 255.0 for x in rgb]
-    
-    h, s, v = colorsys.rgb_to_hsv(r, g, b)
-    
-    h = (h + 0.5) % 1.0
-    
-    r, g, b = colorsys.hsv_to_rgb(h, s, v)
-    
-    return tuple(int(x * 255) for x in (r, g, b))
 
 # -----------------------------------------------Load Images-----------------------------------------------------------#
 image_cache = {}
@@ -386,7 +379,7 @@ food_images_resized = load_and_resize_food_images('media/Food', (2 * FOOD_RAD, 2
 
 
 # Function to render game state
-def render_game_state(screen, game_state):
+def render_game_state(screen, game_state, image_colors_map):
     # Clear the screen
     screen.fill((0, 0, 0))
     draw_grid_background(screen)
@@ -397,9 +390,12 @@ def render_game_state(screen, game_state):
         username = player_data['username']
         dirX = player_data['dirX']
         dirY = player_data['dirY']
-        body_color = player_data['body_color']
-        complement_color = get_complementary_color(body_color)
-        #print(body_color)
+        if snake_head_path in image_colors_map:
+            body_color, complement_color = image_colors_map[snake_head_path]
+        else:
+            # Fallback colors if the path is not in the map
+            body_color = (255, 255, 255)  
+            complement_color = (0, 0, 0)  
     
         for index, segment in enumerate(reversed(player_data['body'])):
             if index == len(player_data['body'])-1:  # Draw the head of the snake
@@ -449,7 +445,7 @@ def render_game_state(screen, game_state):
 # -----------------------------------------------Reset Game-----------------------------------------------------------#
     
 
-def reset_game(connection, username, songs, current_song_index):    #### Reset ####
+def reset_game(connection, username, songs, current_song_index, image_colors_map):    #### Reset ####
     
     
     if connection is not None:
@@ -472,6 +468,7 @@ def reset_game(connection, username, songs, current_song_index):    #### Reset #
     frames = load_frames(frames_directory, screen) # comment out to quickly login
     last_frame = play_frames(frames, screen) # comment out to quickly login
     load_player_images()
+    image_colors_map = {'media/AccelitherHeads/01_beige.png': ((255, 246, 191), (191, 200, 255)), 'media/AccelitherHeads/02_icy_blue.png': ((108, 254, 254), (254, 108, 108)), 'media/AccelitherHeads/03_fiery_red.png': ((255, 170, 53), (53, 138, 255)), 'media/AccelitherHeads/04_heat.png': ((53, 53, 192), (192, 191, 53)), 'media/AccelitherHeads/05_hibiscus.png': ((255, 191, 243), (191, 255, 203)), 'media/AccelitherHeads/06_deep_purple.png': ((238, 86, 107), (86, 238, 217)), 'media/AccelitherHeads/07_icy_white.png': ((226, 247, 247), (247, 226, 226)), 'media/AccelitherHeads/08_lime_green.png': ((72, 254, 202), (254, 71, 124)), 'media/AccelitherHeads/09_gold.png': ((255, 241, 136), (136, 149, 255))}
     username = input_username(screen, last_frame) # remove screen argument to quickly login 
     pygame.mixer.music.stop()
     
@@ -497,7 +494,7 @@ def reset_game(connection, username, songs, current_song_index):    #### Reset #
 
     time.sleep(1)
 
-    return connection, username, songs, current_song_index
+    return connection, username, songs, current_song_index, image_colors_map
 
     
 
@@ -518,6 +515,7 @@ def main():
     frames = load_frames(frames_directory, screen) # comment out to quickly login
     last_frame = play_frames(frames, screen) # comment out to quickly login
     load_player_images()
+    image_colors_map = {'media/AccelitherHeads/01_beige.png': ((255, 246, 191), (191, 200, 255)), 'media/AccelitherHeads/02_icy_blue.png': ((108, 254, 254), (254, 108, 108)), 'media/AccelitherHeads/03_fiery_red.png': ((255, 170, 53), (53, 138, 255)), 'media/AccelitherHeads/04_heat.png': ((53, 53, 192), (192, 191, 53)), 'media/AccelitherHeads/05_hibiscus.png': ((255, 191, 243), (191, 255, 203)), 'media/AccelitherHeads/06_deep_purple.png': ((238, 86, 107), (86, 238, 217)), 'media/AccelitherHeads/07_icy_white.png': ((226, 247, 247), (247, 226, 226)), 'media/AccelitherHeads/08_lime_green.png': ((72, 254, 202), (254, 71, 124)), 'media/AccelitherHeads/09_gold.png': ((255, 241, 136), (136, 149, 255))}
     username = input_username(screen, last_frame) # remove screen argument to quickly login 
     pygame.mixer.music.stop()
     
@@ -591,7 +589,7 @@ def main():
                     #game_state = json.loads(game_state_json)
                     game_state = protobuf_to_dict(received_game_data)
                     score = game_state['score']
-                    render_game_state(screen, game_state)
+                    render_game_state(screen, game_state, image_colors_map)
                     if not game_state['alive']:
                         state = STATE_GAME_OVER
                         
@@ -609,7 +607,7 @@ def main():
                 state = STATE_RESTART
 
         elif state == STATE_RESTART:
-            connection, username, songs, current_song_index = reset_game(connection, username, songs, current_song_index)
+            connection, username, songs, current_song_index, image_colors_map = reset_game(connection, username, songs, current_song_index, image_colors_map)
             state = STATE_RUNNING
 
 
