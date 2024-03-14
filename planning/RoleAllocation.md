@@ -38,8 +38,8 @@
 
 | Currently Working On | | Implemented | | Planning to Work On |
 |--------------------------|-|------------------------------|-|---------------------------------|
-| N/A | | N/A | | N/A |
-| N/A | | N/A | | N/A |
+| N/A | | [Set up version control (Git repository) and ensure private settings.](#administration) | | N/A |
+| N/A | | Establish project goals and scope | | N/A |
 
 
 ### Sophie:
@@ -59,18 +59,12 @@
 
 ### Administration
 
-- Set up version control (Git repository) and ensure private settings.
-- Establish project goals and scope.
 
 ### FPGA Development
 
-- Setting up development environments for FPGA and server.
-- Review resources for DE10-Lite from Quartus.
-- Explore additional node functionality for expanded gameplay.
 
 ### Cloud Server Architecture
 
-- Exploring options for cloud server platforms and APIs.
 - Draft architecture for cloud server and client communication.
 - Set up basic cloud server for processing game events.
 - Establish communication protocol between FPGA (node) and server.

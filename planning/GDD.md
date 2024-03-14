@@ -1,8 +1,6 @@
 # Game Design Document (GDD) 
 
-**Game will probably adapted from an existing implementation**
 
-**This page is an intial template to expand**
 
 ## 1. Game Concept
 - **Title**: Accelither
@@ -19,12 +17,12 @@
   - If a snake hits another snakes body it dies
   - Snakes could possibly pick up and activate special abilities
 - **Controls**:
-  - Polar coordinates recieved from accelerometer for control in the 2d game plane
+  - x,y coordinates recieved from accelerometer for control in the 2d game plane
   - Possibly jerk up and down in z axis to activate ability etc reading rapid change in z values
   - Hold down button to accelerate
-  - further functionality ....
+  - switches control UI
 - **Level**:
-  -  Single level with defined game arena due to limited player count
+  -  Single level with defined game arena due 
   -  Could have a wraparound game plane, would be quite impressive, possibly quite complex
 
 ## 3. Story and Setting
@@ -39,7 +37,7 @@
   - Visual theme could tie in with story of the snakes
 - **Characters**:
   - Simple 2d art of snakes
-  - Could have multiple presets to choose, or randomly start with one (not really needed). 
+  - randomly start with one
 - **UI/UX Design**:
   - Very minimal and small
   - Small box in a corner to display current held ability
@@ -59,19 +57,17 @@
 ## 6. Multiplayer
 - **Network Play**:
   - Competitive survival, can eliminate other players
-- **Server Architecture**: (Need to figure out)
-  - We will go through the sever first before sending info to game
+- **Server Architecture**:
   - fpga->client->server->client where all processing and game logic is done on the server
-  - Connecting over udp from server to multiple client concurrently
+  - Connecting over tcp from server to multiple client concurrently
 - **Matchmaking and Lobbies**:
-  - How do we join a game instance?
-  - Is there one concurrent room?  
+  - One server hosts a game instance
 
 ## 7. Technology
 - **Engine**:
-  - Probaby won't use one
+  - pygame :)
 - **Platforms**:
-  - Strictly downloadable executable linked to via webpage
+  - Strictly downloadable executable linked to via webpage / download from github
 - **FPGA Integration**: 
   -  FPGA data streams accelerometer data through client straight to the server for processing
 
@@ -83,6 +79,3 @@
 
 ## 9. Ideas
   - Put any ideas here
-
-
-**We should probably start working together, creating a timeline and assigning clear roles as soon as possible.**

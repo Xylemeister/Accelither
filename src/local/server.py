@@ -17,7 +17,7 @@ import uuid
 
 
 #select a server port
-HOST = '172.31.44.2'
+HOST = '172.31.32.172'
 PORT = 12000
 
 ARENA_X = 1000
@@ -50,7 +50,6 @@ def dict_to_protobuf(data):
             body_coord.x = body_part[0]
             body_coord.y = body_part[1]
         player.head_image_path = player_data["head_image_path"]
-        player.body_color[:] = player_data["body_color"]
     
     # Convert foods
     for food_data in data["foods"]:
@@ -69,38 +68,12 @@ def dict_to_protobuf(data):
 
 # -------------------------------------------------------Get Random Snake----------------------------------------------------------------#
 
-def get_most_common_color(image_path):
-    image = Image.open(image_path)
-    if image.mode != 'RGBA':
-        image = image.convert('RGBA')
-
-    pixels = np.array(image)
-
-    # Filter out fully transparent pixels
-    pixels = pixels.reshape(-1, 4)
-    pixels = pixels[pixels[:, 3] > 0][:, :3]  # Drop the alpha channel information
-
-    # Count colors
-    colors = Counter(map(tuple, pixels))
-
-    # Define a threshold for non-black colors
-    non_black_threshold = 50
-
-    # Filter out colors that are black or close to black
-    colors = {color: count for color, count in colors.items() if all(value > non_black_threshold for value in color)}
-
-    # Find the most common non-black color, defaulting to a placeholder if none are found
-    most_common_non_black_color = max(colors, key=colors.get) if colors else (255, 255, 255)  # Default to white if no non-black color is found
-
-    return tuple(map(int, most_common_non_black_color))
-
 
 def load_random_snake_head(heads_directory):
     files = [f for f in os.listdir(heads_directory) if f.endswith(('.jpg', '.png'))]
     selected_file = random.choice(files)
     file_path = os.path.join(heads_directory, selected_file)
-    majority_color = get_most_common_color(file_path)
-    return majority_color, file_path
+    return file_path
 
 # ---------------------------------------------------------------------------------------------------------------------------------#
 
@@ -121,7 +94,7 @@ def check_collision_circle_list(circle, circle_list):
     return ""
 
 class Player:
-    def __init__(self, player_id, username, x, y, head_image_path, body_color):
+    def __init__(self, player_id, username, x, y, head_image_path):
         self.username = username
         self.player_id = player_id
         self.x = x
@@ -132,7 +105,6 @@ class Player:
         self.dirY = 0
         self.speed = 3
         self.head_image_path = head_image_path  # Path to the head image
-        self.body_color = body_color  # RGB color tuple
 
     def to_dict(self):
         return {
@@ -145,7 +117,6 @@ class Player:
             "dirX" : round(self.dirX, 2),
             "dirY" : round(self.dirY, 2),
             "head_image_path": self.head_image_path,
-            "body_color": self.body_color
         }
 
 class Food:
@@ -184,8 +155,8 @@ class GameData:
                     if dist < 200:
                         not_valid = True
                         break
-            body_color, head_image_path = load_random_snake_head(self.directory)
-            self.players[player_id] = Player(player_id, username, x, y, head_image_path, body_color)  
+            head_image_path = load_random_snake_head(self.directory)
+            self.players[player_id] = Player(player_id, username, x, y, head_image_path)  
             
 
     def remove_player(self, player_id):
