@@ -116,7 +116,6 @@ def check_collision_circle(circle1, circle2):
     
 def check_collision_circle_list(circle, circle_list):
     for c in circle_list:
-        print(c)
         if check_collision_circle(circle,c[:3]):
             return c[3]
     return ""
@@ -245,16 +244,17 @@ class GameData:
                     else:
                         all_player_bodies.append((segment[0],segment[1],SNAKE_RAD, other_player.username))
         Killer = check_collision_circle_list(player_head_circle, all_player_bodies)
-        print(Killer)
         if Killer != "":
-            for body in player.body:
-                self.foods.append(Food(body[0], body[1]))
+            for index, body in enumerate(player.body):
+                if (len(self.foods) < 100 and index % 5==0):
+                    self.foods.append(Food(body[0], body[1]))
             add_kill(Killer)
             print("player colision " + str(player_id))
             return True
         if (player.x < SNAKE_RAD or player.x > ARENA_X-SNAKE_RAD or player.y < SNAKE_RAD or player.y > ARENA_Y-SNAKE_RAD):
-            for body in player.body:
-                self.foods.append(Food(body[0], body[1]))
+            for index, body in enumerate(player.body):
+                if (len(self.foods) < 100 and index % 5==0):
+                    self.foods.append(Food(body[0], body[1]))
             print("wall collision " + str(player_id))
             return True
         return False
@@ -294,7 +294,7 @@ class GameData:
                 with self.lock:
                     self.foods.pop(index)
                     player.score += 1
-                if (len(self.foods) < 70):
+                if (len(self.foods) < 50):
                     self.generate_food()
                 return True
         self.reduce_player_body(player_id)
@@ -345,9 +345,18 @@ class ServerThread(threading.Thread):
                 self.connection.clients[self.player_id].close()
                 self.connection.is_alive[1][self.player_id] = False
             try:
-                client_input = self.connection.recv(self.player_id)
-                if client_input != b"":
-                    json_msg = client_input.decode()
+                client_input = self.connection.recv(self.player_id).decode()
+                curr = 0
+                for ind, char in enumerate(client_input):
+                    if char == '{':
+                        curr+=1
+                    elif char == '}':
+                        curr-=1
+                    if curr == 0:
+                        client_input = client_input[:ind+1]
+
+                if client_input != "":
+                    json_msg = client_input
                     try:
                         msg = json.loads(json_msg)
                         x = msg["x"]
@@ -362,14 +371,12 @@ class ServerThread(threading.Thread):
                         game_state, boundary_box = self.game_data.render_to_player(self.player_id)
                         game_state['alive'] = self.alive
                         game_state['score'] = self.game_data.players[self.player_id].score
-                        print("player" + self.username + " score is " + str(self.game_data.players[self.player_id].score))
                         game_state['food_eaten'] = eaten
                         game_state['boundary_box'] = boundary_box
                         #msg_out = json.dumps(game_state)
                         msg_out = dict_to_protobuf(game_state)
                         #print(msg_out.SerializeToString())
                         self.connection.send(msg_out.SerializeToString(), self.player_id)
-                        print("sent")
                     except:
                         print("failed")
                         print(json_msg)

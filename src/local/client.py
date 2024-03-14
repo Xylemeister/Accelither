@@ -596,7 +596,7 @@ def main():
                         state = STATE_GAME_OVER
                         
                 except:
-                    print(game_state_json)
+                    print("Sussy baka")
                     continue
             
             
