@@ -91,8 +91,6 @@ server.py
 - Now you can finally locally execute client.py
 
 *You should now be in Game !!!*
-### **Description for each folder in repo**
-
 
 
 ## Planning
