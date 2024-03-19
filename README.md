@@ -12,7 +12,8 @@ This repository contains an implementation of slither.io controlled via fpga, cr
   - Switches can alter the HUD - if a switch is activated its associated LED lights up
   - Current score is shown on the HEX display
 
-This game can theoretically support any number of players but will communication will eventually break down when number of players connected to the server gets excessively large.
+This game can theoretically support any number of players but communication will eventually break down when number of players connected to the server becomes excessively large. 
+It will also depend on how capable the server is.
 
 
 ## Architecture
