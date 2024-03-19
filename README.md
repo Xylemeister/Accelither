@@ -1,23 +1,35 @@
-# Group 1 - Accelither
+# Accelither: Multiplayer slither.io equivalent controlled via FPGA
 
 <p align="center">
-  <img src="./docs/media/Accelither_logo.png" alt="logo">
+  <img src="./docs/media/Accelither.jpg" alt="logo">
 </p>
 
-This repository contains an implementation of slither.io controlled via fpga, created as part of the EIE 2nd year Information Processing coursework.
+This repository contains an implementation of slither.io controlled via fpga, created as part of the EIE 2nd year Information Processing coursework at Imperial College London.
 
-## Contributors
+**Controls**:
+  - You are able to freely move in any direction in an x-y plane through tilting the FPGA
+  - Buttons on the FPGA allow acceleration and deceleration of the snake
+  - Switches can alter the HUD - if a switch is activated its associated LED lights up
+  - Current score is shown on the HEX display
 
-|  | CID | Email | 
-|----------|------|:--------:| 
-| Maximilian Adam | 02286647 | maximilian.adam22@imperial.ac.uk |
-| Benny |||
-| Sophie |||
-| Matuesz |||
-| Lucas |||
-| Hanif |||
+This game can theoretically support any number of players but will communication will eventually break down when number of players connected to the server gets excessively large.
 
-## Overview
+
+## Architecture
+<p align="center">
+  <img src="./docs/media/system_diagram.png" alt="logo">
+</p>
+
+## Docs
+
+### Repo structure
+```
+src/fpga/     # Contains all FPGA files
+src/local/    # Contains all Game files
+docs/         # Contains planning/repo imgs
+
+```
+
 
 ### Executing our Project
 **FPGA Setup**
@@ -57,17 +69,24 @@ The FPGA is now set up and streaming accelerometer data!
 
 **Running the game**
 
-- You will need to setup the server yourself, a way of doing this is launching an ec2 instance on AWS then using filezilla or some other file transfer software move 
-  - server.py
+- You will need to setup the server yourself, a way of doing this is launching an ubuntu 22.04 ec2 instance on AWS and adding a dynamodb IAM role. Then using filezilla or some other file transfer software move 
+  - initiatedatabase.py
+  - server.py (you will need to change the Host variable to your servers private IP before moving)
   - netcode 
   - media
   - database.py
+  - game_pb2.py
 
-  Over to the server and execute 
+  Over to the server. 
+  
+  Then ensure all required packages are installed e.g boto3 for dynamodb. Proceed to run
+```python
+initiatedatabase.py
+```
+in the server then finally execute 
 ```python
 server.py
 ```
-
 - Once the server is running go into client.py and change the HOST variable to your servers public IP
 - Now you can finally locally execute client.py
 
@@ -76,13 +95,13 @@ server.py
 
 
 
-### Planning
+## Planning
 
-[Timeline](./planning/Timeline.md)
+[Timeline](./docs/planning/Timeline.md)
 
-[Game Design Document](./planning/GDD.md)
+[Game Design Document](./docs/planning/GDD.md)
 
-[Role Allocation](./planning/RoleAllocation.md)
+[Role Allocation](./docs/planning/RoleAllocation.md)
 
 
 

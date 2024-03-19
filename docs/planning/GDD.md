@@ -9,56 +9,53 @@
 ## 2. Gameplay
 - **Objective**:
   - Grow as large as possible
-  - Stay at the top of the leaderboard as long as possible
-  - Eliminate as many players as posible
+  - Achieve the highscore on the leaderboard
+  - Eliminate as many players as possible
 - **Mechanics**:
   - Snake moving in 2d game plane
   - Snake can accelerate
   - If a snake hits another snakes body it dies
-  - Snakes could possibly pick up and activate special abilities
+  - Snakes picks up food and grows
 - **Controls**:
   - x,y coordinates recieved from accelerometer for control in the 2d game plane
-  - Possibly jerk up and down in z axis to activate ability etc reading rapid change in z values
-  - Hold down button to accelerate
-  - switches control UI
+  - Hold down button to accelerate/decelerate
+  - switches control HUD
 - **Level**:
-  -  Single level with defined game arena due 
-  -  Could have a wraparound game plane, would be quite impressive, possibly quite complex
+  -  Single level with defined game arena 
 
 ## 3. Story and Setting
 - **Narrative**:
-  - Could make a story for the snakes.
+  - Snakes want to grow big.
 - **World**:
-  - Level design could try and mimik a simplified biome with obstacles in the plane
+  - Sci-fi 
  
 
 ## 4. Art and Aesthetics
 - **Visual Style**:
-  - Visual theme could tie in with story of the snakes
+  - Sci-fi aesthetic
 - **Characters**:
   - Simple 2d art of snakes
   - randomly start with one
+  - snakes scales are the complement colour of their body which is calculated from the majority colour of their head
 - **UI/UX Design**:
   - Very minimal and small
-  - Small box in a corner to display current held ability
   - Current score
   - Current position in the size leaderboard
   - Number of enimies killed
-  - Survival time
 
 ## 5. Sound and Music
 - **Sound Effects**:
-  - Sound played through laptop when you die or kill an enemy
-  - Achievement sound when you become top of the leaderboard
-  - Maybe have sound that plays when you make it pass a certain score or time e.g your highscore in size and survival time. Or other significant intervals
+  - Sound played through laptop when you die 
+  - Sound for eating food
+  - sound for gameover screen
 - **Music**:
-  - Not really needed, could have simple tune if we really wanted to
+  - intro music and ingame playlist that is randomly shuffled
 
 ## 6. Multiplayer
 - **Network Play**:
   - Competitive survival, can eliminate other players
 - **Server Architecture**:
-  - fpga->client->server->client where all processing and game logic is done on the server
+  - fpga->client->server->client where most processing and game logic is done on the server
   - Connecting over tcp from server to multiple client concurrently
 - **Matchmaking and Lobbies**:
   - One server hosts a game instance
@@ -76,6 +73,3 @@
   - Major milestones [Timeline](./Timeline.md)
 - **Team Roles**:
   - List of team members and their roles/responsibilities. [Role Allocation](./RoleAllocation.md)
-
-## 9. Ideas
-  - Put any ideas here

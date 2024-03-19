@@ -35,19 +35,18 @@
 
 | Category | Task | Completed |
 |----------|------|:--------:|
-| Gameplay Mechanics | Integrate special abilities and power-ups. | [ ] |
-|  | Develop UI for displaying score, abilities, and leaderboard. | [ ] |
+|  | Develop UI for displaying score and leaderboard. | [ x ] |
 | Multiplayer Integration | Implement basic multiplayer functionality and test connectivity. | [ x ] |
 |  | Develop server logic for handling multiple players and game states. | [ x ] |
-| Testing | Continue testing of game mechanics and FPGA integration. | [ ] |
+| Testing | Continue testing of game mechanics and FPGA integration. | [ x ] |
 
 ### Week 4: Final Testing, Documentation, and Submission Preparation (18 March - 22 March)
 
 | Category | Task | Completed |
 |----------|------|:--------:|
-| Testing and Debugging | Conduct comprehensive testing across all components. | [ ] |
-|  | Debug issues found during testing and optimize performance. | [ ] |
-| Documentation | Finalize game design document (GDD) with detailed mechanics and server architecture. | [ ] |
+| Testing and Debugging | Conduct comprehensive testing across all components. | [ x ] |
+|  | Debug issues found during testing and optimize performance. | [ x ] |
+| Documentation | Finalize game design document (GDD) with mechanics and server architecture. | [  ] |
 |  | Document the testing approach and performance metrics. | [ ] |
 |  | Create system architecture diagrams and flowcharts. | [ ] |
 | Submission | Compile and review all deliverables (report, code, diagrams). | [ ] |
