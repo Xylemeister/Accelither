@@ -92,9 +92,22 @@ server.py
 - Now you can finally locally execute client.py
 
 *You should now be in Game !!!*
+### Functional requirements
+The initial requirments for this project were:
 
+- Local processing of the accelerometer data.  
 
-## Planning
+- Establishing a cloud server to process events/information 
+
+- Communicating information from the node to the server. 
+
+- Communicating information from the server back to the nodes in way that the local processing can be impacted.  
+
+- Use of two nodes 
+
+Through what we have built we have successfully achieved all of them.
+
+### Planning
 
 [Timeline](./docs/planning/Timeline.md)
 
