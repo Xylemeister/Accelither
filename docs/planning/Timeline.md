@@ -46,7 +46,7 @@
 |----------|------|:--------:|
 | Testing and Debugging | Conduct comprehensive testing across all components. | [ x ] |
 |  | Debug issues found during testing and optimize performance. | [ x ] |
-| Documentation | Finalize game design document (GDD) with mechanics and server architecture. | [  ] |
+| Documentation | Finalize game design document (GDD) with mechanics and server architecture. | [ x ] |
 |  | Document the testing approach and performance metrics. | [ x ] |
 |  | Create system architecture diagrams and flowcharts. | [ x ] |
 | Submission | Compile and review all deliverables (report, code, diagrams). | [ x ] |
