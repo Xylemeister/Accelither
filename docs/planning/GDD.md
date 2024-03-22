@@ -71,5 +71,5 @@
 ## 8. Development and Production
 - **Timeline**:
   - Major milestones [Timeline](./Timeline.md)
-- **Team Roles**:
-  - List of team members and their roles/responsibilities. [Role Allocation](./RoleAllocation.md)
+- **Task Tracker**:
+  - List of roles/responsibilities, emptied as tasks were taken. [Role Allocation](./RoleAllocation.md)

@@ -47,9 +47,9 @@
 | Testing and Debugging | Conduct comprehensive testing across all components. | [ x ] |
 |  | Debug issues found during testing and optimize performance. | [ x ] |
 | Documentation | Finalize game design document (GDD) with mechanics and server architecture. | [  ] |
-|  | Document the testing approach and performance metrics. | [ ] |
-|  | Create system architecture diagrams and flowcharts. | [ ] |
-| Submission | Compile and review all deliverables (report, code, diagrams). | [ ] |
-|  | Create a short project demonstration video (optional). | [ ] |
-|  | Submit all coursework deliverables before the deadline. | [ ] |
+|  | Document the testing approach and performance metrics. | [ x ] |
+|  | Create system architecture diagrams and flowcharts. | [ x ] |
+| Submission | Compile and review all deliverables (report, code, diagrams). | [ x ] |
+|  | Create a short project demonstration video (optional). | [ x ] |
+|  | Submit all coursework deliverables before the deadline. | [ x ] |
 
